@@ -1,0 +1,25 @@
+
+
+.boxvideo {
+    width: 250px;
+    overflow: hidden;
+    display: block;
+    height: 300px;
+    /* margin: auto; */
+    border: solid #a1a1a1;
+    border-radius: 5px;
+    margin-bottom: 5px;
+}
+
+#video {
+    width: 700px;
+}
+
+#webcam, #video {
+    margin-left: -250px;
+    margin-top: 0px;
+}
+
+#canvas {
+    display: none;
+}

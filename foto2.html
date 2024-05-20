@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Captura foto</title>
+
+    <link rel="stylesheet" href="src/css/foto.css">
+</head>
+<body>
+
+    <div class="boxvideo" id="boxvideo">
+        <video id="webcam" autoplay playsinline></video>
+    </div>
+    <canvas id=canvas></canvas>
+    <a download onclick="initCrop()">CROP</a>
+    <img src="" id="foto" alt="">
+
+
+    <script src="src/js/jquery.min.js"></script>
+    <script src="src/js/webcam-easy.min.js"></script>
+    <script src="src/js/dom-to-image.min.js"></script>
+    <script src="src/js/comprimir.js"></script>
+    
+</body>
+</html>

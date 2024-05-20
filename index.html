@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkin Semana Jovem - 2024</title>
+
+    <script src="src/js/webcam-easy.min.js"></script>
+    <!-- <script src="src/js/compress.min.js"></script> -->
+    <script src="src/js/dom-to-image.min.js"></script>
+    <script src="src/js/jquery.min.js"></script>
+
+    <style>
+        .boxvideo {
+            width: 250px;
+            overflow: hidden;
+            display: block;
+            height: 300px;
+            margin: auto;
+        }
+
+        #webcam {
+            margin-left: -160px;
+            margin-top: -100px;
+        }
+
+        #canvas {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="boxvideo" id="boxvideo">
+        <video id="webcam" autoplay playsinline width="600" height="400"></video>
+    </div>
+    <canvas id=canvas></canvas>
+    <a download onclick="takePicture()">Capturar</a>
+    <a download onclick="initCrop()">Capturar CROP</a>
+    <img src="" id="foto" alt="">
+
+    <script>
+        const webCamElement = document.getElementById('webcam');
+        const canvasElement = document.getElementById('canvas');
+        const webcam = new Webcam(webCamElement, "user", canvasElement);
+
+        
+
+        $(document).ready(function () {
+            webcam.start();
+        });
+
+
+        function takePicture() {
+            let picture = webcam.snap();
+            // base64 png
+            // console.log(picture);
+
+            let foto = new Image();
+            foto.src = picture;
+            // tag img com src.
+            // console.log(foto);
+
+            let canvas = document.createElement('canvas');
+            canvas.width = 40;
+            canvas.height = 90;
+
+            let ctx = canvas.getContext("2d");
+            ctx.drawImage(foto, 0, 0, 40, 90);
+            // console.log(ctx);
+            console.log(ctx.toDataURL());
+
+            document.getElementById("foto").src = canvas.toDataURL();
+        }
+    </script>
+
+
+
+
+    <script src="src/js/comprimir.js"></script>
+
+
+    <!-- <hr>
+    oi
+    <video autoplay="" id="video"></video>
+    <script src="src/js/script.js"></script> -->
+</body>
+
+</html>
