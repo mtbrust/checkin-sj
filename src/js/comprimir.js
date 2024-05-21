@@ -14,7 +14,7 @@ $(document).ready(function () {
 
 async function initCrop() {
     let picture = webcam.snap();
-    const canvas = await crop(picture, 4 / 6);
+    const canvas = await crop(picture, 4 / 5);
     document.getElementById("foto").src = canvas.toDataURL();
 }
 

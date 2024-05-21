@@ -43,15 +43,27 @@
   // play
   btnPlay.addEventListener("click", function () {
     video.play();
-    btnPlay.classList.add("is-hidden");
-    btnPause.classList.remove("is-hidden");
+
+    $(btnPlay).css({
+      display: "none"
+    });
+    
+    $(btnPause).css({
+      display: "block"
+    });
   });
 
   // pause
   btnPause.addEventListener("click", function () {
     video.pause();
-    btnPause.classList.add("is-hidden");
-    btnPlay.classList.remove("is-hidden");
+    
+    $(btnPlay).css({
+      display: "block"
+    });
+    
+    $(btnPause).css({
+      display: "none"
+    });
   });
 
   // take screenshot
