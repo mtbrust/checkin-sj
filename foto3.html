@@ -13,7 +13,7 @@
 
     <div style="display: inline-grid;">
         <div class="boxvideo">
-            <video autoplay="" id="video"></video>
+            <video autoplay="" id="video" onclick="funcScreenshot()" ondblclick="funcChangeCamera()"></video>
         </div>
     
         <div style="margin: auto; display: flex;">
@@ -23,7 +23,7 @@
             <button class="button" id="btnPause">
                 <i class="fas fa-pause"></i>
             </button>
-            <button class="button is-success" id="btnScreenshot" onclick="capture()">
+            <button class="button is-success" id="btnScreenshot">
                 <i class="fas fa-camera"></i>
             </button>
             <button class="button" id="btnChangeCamera">
@@ -33,14 +33,14 @@
         </div>
     </div>
 
-
-    <img src="" alt="" id="screenshots" style="display: block; width: 150px;">
+    <div id="screenshot" style="width: 160px;">
+        <img src="" alt="" id="screenshots" style="display: block; width: 160px;">
+    </div>
 
     
     <script src="src/js/jquery.min.js"></script>
     <script src="src/js/script_cam.js"></script>
     <script src="src/js/fontawesome.js"></script>
-    <script src="src/js/crop-image.js"></script>
     <script src="src/js/html2canvas.min.js"></script>
 </body>
 
