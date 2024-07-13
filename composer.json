@@ -1,0 +1,12 @@
+{
+    "name": "brust/checkin-sj",
+    "authors": [
+        {
+            "name": "Mateus Brust",
+            "email": "contato@desv.com.br"
+        }
+    ],
+    "require": {
+        "mpdf/mpdf": "^8.2"
+    }
+}
