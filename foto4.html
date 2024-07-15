@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Captura foto</title>
+
+    <link rel="stylesheet" href="src/css/foto2.css">
+</head>
+
+<body>
+
+
+
+    <div class="boxvideo" id="boxvideo">
+        <video id="webcam2" autoplay playsinline></video>
+    </div>
+    <canvas id="canvas"></canvas>
+    <a download onclick="initCrop()">CROP</a>
+    <img src="" id="foto" alt="">
+
+    <hr>
+    <a href="#" onclick="camera()">abrir camera</a>
+    <a href="#" onclick="funcScreenshot()">Print</a>
+    <a href="#" onclick="divToPng()">divToPng</a>
+    <div id="cameras"></div>
+    <video id="video" autoplay></video>
+    <div id="screenshots"></div>
+    <div id="imgDiv">
+        <img src="" id="img" alt="" style="max-width: 50px;">
+    </div>
+    <img src="" id="img-out" alt="">
+    <span id="tamanho"></span>
+
+
+
+
+
+
+
+
+
+    <script src="src/js/jquery.min.js"></script>
+    <script src="src/js/html2canvas.min.js"></script>
+    <script src="src/js/webcam-easy.min.js"></script>
+    <script src="src/js/dom-to-image.min.js"></script>
+    <script src="src/js/comprimir.js"></script>
+    <script src="src/js/camera.js"></script>
+
+    <script>
+
+        const video = document.querySelector('#video');
+        let img = document.getElementById("screenshots");
+
+        let currentStream;
+        let canSelected = '';
+
+        let constraints2 = {
+            video: {
+                width: {
+                    min: 1280,
+                    ideal: 1920,
+                    max: 2560,
+                },
+                height: {
+                    min: 720,
+                    ideal: 1080,
+                    max: 1440,
+                },
+                deviceId: { exact: '' }
+            },
+        }
+
+
+        function stopMediaTracks(stream) {
+            stream.getTracks().forEach(track => {
+                track.stop();
+            });
+        }
+
+        function gotDevices(mediaDevices) {
+            let count = 1;
+            mediaDevices.forEach(mediaDevice => {
+                if (mediaDevice.kind === 'videoinput') {
+                    console.log(mediaDevice.deviceId);
+                    console.log(mediaDevice.label || `Camera ${count++}`);
+                    // Mostra na tela as opções de cameras.
+                    link = '<br><a href="#" onclick="ligarCamera(\'' + mediaDevice.deviceId + '\')">' + mediaDevice.label + '</a>';
+                    $('#cameras').append(link);
+                }
+            });
+        }
+
+        function camera(canSelected) {
+            if (typeof currentStream !== 'undefined') {
+                stopMediaTracks(currentStream);
+            }
+            const videoConstraints = {};
+            if (canSelected === '') {
+                videoConstraints.facingMode = 'environment';
+            } else {
+                videoConstraints.deviceId = { exact: canSelected };
+            }
+            const constraints = {
+                video: videoConstraints,
+                audio: false
+            };
+            navigator.mediaDevices
+                .getUserMedia(constraints)
+                .then(stream => {
+                    currentStream = stream;
+                    video.srcObject = stream;
+                    return navigator.mediaDevices.enumerateDevices();
+                })
+                // .then(gotDevices)
+                .catch(error => {
+                    console.error(error);
+                });
+        }
+
+       
+
+        function PrintDiv(div) {
+            html2canvas((div), {
+                onrendered: function (canvas) {
+                    var myImage = canvas.toDataURL();
+                    downloadURI(myImage, "MaSimulation.png");
+                }
+            });
+        }
+
+        function downloadURI(uri, name) {
+            var link = document.createElement("a");
+
+            link.download = name;
+            link.href = uri;
+            document.body.appendChild(link);
+            link.click();
+            //after creating link you should delete dynamic link
+            //clearDynamicLink(link); 
+        }
+
+        function funcScreenshot() {
+
+            let canvas = document.createElement("canvas");
+
+            // Obtém as dimensões em formato 4:5
+            dimensoes = dimensiona(video.videoWidth, video.videoHeight, 4 / 5);
+
+            canvas.width = dimensoes.w;
+            canvas.height = dimensoes.h;
+            canvas.getContext("2d").drawImage(video, dimensoes.x, dimensoes.y);
+
+            // exibe a imagem.
+            imageBase64 = canvas.toDataURL("image/png");
+            // console.log(imageBase64);
+            $('#img').prop('src', imageBase64);
+
+            // reduz o tamanho.
+            divToPng();
+        }
+
+        function dimensiona(w, h, aspectRatio = 4 / 5) {
+
+            // get the aspect ratio of the input image
+            const inputImageAspectRatio = w / h;
+
+            // if it's bigger than our target aspect ratio
+            let outputWidth = w;
+            let outputHeight = h;
+            if (inputImageAspectRatio > aspectRatio) {
+                outputWidth = h * aspectRatio;
+            } else if (inputImageAspectRatio < aspectRatio) {
+                outputHeight = h / aspectRatio;
+            }
+
+            // calculate the position to draw the image at
+            const outputX = (outputWidth - w) * .5;
+            const outputY = (outputHeight - h) * .5;
+
+            return {
+                x: outputX,
+                y: outputY,
+                w: outputWidth,
+                h: outputHeight
+            };
+        }
+
+        function ajustaCam() {
+
+            // video = document.querySelector("#video");
+
+            // Obtém as dimensões em formato 4:5
+            dimensoes = dimensiona(video.videoWidth, video.videoHeight, 4 / 5);
+
+            // Ajusta exibição da camera.
+            $(video).css({
+                marginLeft: -100,
+                width: dimensoes.x * -1
+            });
+        }
+
+        function divToPng() {
+            html2canvas($("#img")[0]).then((canvas) => {
+                console.log(canvas.toDataURL());
+                imageSize(canvas.toDataURL());
+                $("#img-out").prop('src', canvas.toDataURL());
+            });
+        }
+
+        function imageSize(base64) {
+            fetch(base64).then(response => response.arrayBuffer()).then(buf => {
+                console.log(buf.byteLength);
+                $('#tamanho').text(buf.byteLength);
+            });
+        }
+
+
+        navigator.mediaDevices.enumerateDevices().then(gotDevices);
+    </script>
+
+</body>
+
+</html>

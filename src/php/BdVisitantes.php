@@ -41,7 +41,7 @@ class BdVisitantes extends DataBase
             "id" => "INT NOT NULL AUTO_INCREMENT primary key",
 
 
-            "tpulseira"   => "VARCHAR(15) NULL",     // Tipo ou cor da pulseira.
+            "tpulseira"   => "VARCHAR(64) NULL",     // Tipo ou cor da pulseira.
             "pulseira"    => "INT NOT NULL",         // Número da pulseira.
             "oldPulseira" => "INT NOT NULL",         // Número da pulseira antiga.
             "fullName"    => "VARCHAR(160) NULL",    // Nome Completo.
@@ -56,6 +56,7 @@ class BdVisitantes extends DataBase
 
             "cidade" => "VARCHAR(255) NULL",        // Endereço.
             "bairro" => "VARCHAR(255) NULL",
+            "endereco" => "VARCHAR(255) NULL",
             "status" => "INT NULL", // [0] Normal, [1] Cadastro, [2] Atenção, [3] Bloqueado
 
 

@@ -1,26 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Captura foto</title>
 
-    <link rel="stylesheet" href="src/css/foto.css">
+    <link rel="stylesheet" href="src/css/foto2.css">
 </head>
+
 <body>
 
-    <div class="boxvideo" id="boxvideo">
-        <video id="webcam" autoplay playsinline></video>
+
+    <hr>
+    <a href="#" onclick="obterCameras()">Ligar Câmera</a>
+    <a href="#" onclick="funcScreenshot()">Gravar</a>
+    <hr>
+    Cameras
+    <br>
+    <div id="cameras"></div>
+    <hr>
+    <video id="video" autoplay style="max-width: 150px;"></video>
+    <hr>
+
+    <div id="screenshots"></div>
+    <div id="imgDiv">
+        <img src="" id="img" alt="" style="max-width: 50px; max-height: 50px;">
     </div>
-    <canvas id=canvas></canvas>
-    <a download onclick="initCrop()">CROP</a>
-    <img src="" id="foto" alt="">
+    <img src="" id="img-out" alt="">
+    <span id="tamanho"></span>
+
+
+
+
+
+
+
 
 
     <script src="src/js/jquery.min.js"></script>
-    <script src="src/js/webcam-easy.min.js"></script>
+    <script src="src/js/html2canvas.min.js"></script>
     <script src="src/js/dom-to-image.min.js"></script>
-    <script src="src/js/comprimir.js"></script>
-    
+    <script src="src/js/camera.js"></script>
+
+
+    <style>
+        a {
+            padding: 5px;
+        }
+    </style>
+
 </body>
+
 </html>

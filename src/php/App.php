@@ -4,6 +4,7 @@ class App
 {
     public static function init()
     {
+
         // configurações
         require_once('config.php');
 
@@ -34,6 +35,7 @@ class App
         $bdLog->createTable();
         $bdLogins = new BdLogins();
         $bdLogins->createTable();
+        $bdLogins->seeds();
         $BdVisitantes = new BdVisitantes();
         $BdVisitantes->createTable();
         $bdComentarios = new BdComentarios();

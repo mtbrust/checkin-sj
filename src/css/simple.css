@@ -1,0 +1,26 @@
+body{
+    margin: 0;
+}
+
+.user_cicle{
+    padding: 5px;
+    border-radius: 5px;
+    background-color: #f1f1f1;
+}
+.user_cicle_img{
+    width: 100%;
+    padding-bottom: 130%;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 5px;
+    background-position: center;
+    background-size: cover;
+    background-color: #888;
+}
+
+.a_logar h5{
+    text-decoration: none;
+}
+.a_logar{
+    text-decoration: none;
+}

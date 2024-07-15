@@ -41,7 +41,7 @@ class BdPresencas extends DataBase
             "id" => "INT NOT NULL AUTO_INCREMENT primary key",
             
             
-            "tpulseira" => "VARCHAR(15) NULL",   // Tipo ou cor da pulseira.
+            "tpulseira" => "VARCHAR(64) NULL",   // Tipo ou cor da pulseira.
             "pulseira"  => "INT NULL",           // Número da pulseira.
 
             // CRIADO AUTOMATICAMENTE

@@ -1,16 +1,16 @@
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>foto 3</title>
+    <title><?php echo $page_name; ?></title>
 
+    <link href="src/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="src/css/foto3.css">
 </head>
-
 <body>
-
+    
     <div style="display: inline-grid;">
         <div class="boxvideo">
             <video autoplay="" id="video" onclick="funcScreenshot()" ondblclick="funcChangeCamera()"></video>
@@ -37,11 +37,15 @@
         <img src="" alt="" id="screenshots" style="display: block; width: 160px;">
     </div>
 
-    
     <script src="src/js/jquery.min.js"></script>
+    <script src="src/js/default-min.js"></script>
+    <script src="src/js/mask-min.js"></script>
+    <script src="src/js/bootstrap.bundle.min.js"></script>
     <script src="src/js/script_cam.js"></script>
     <script src="src/js/fontawesome.js"></script>
     <script src="src/js/html2canvas.min.js"></script>
 </body>
-
 </html>
+
+
+
