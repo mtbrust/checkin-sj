@@ -43,7 +43,7 @@ class BdVisitantes extends DataBase
 
             "tpulseira"   => "VARCHAR(64) NULL",     // Tipo ou cor da pulseira.
             "pulseira"    => "INT NOT NULL",         // Número da pulseira.
-            "oldPulseira" => "INT NOT NULL",         // Número da pulseira antiga.
+            "oldPulseira" => "INT NULL",         // Número da pulseira antiga.
             "fullName"    => "VARCHAR(160) NULL",    // Nome Completo.
             "telefone"    => "VARCHAR(11) NULL",     // Telefone (numero only).
             "cpf"         => "VARCHAR(11) NULL",     // CPF.
@@ -51,6 +51,13 @@ class BdVisitantes extends DataBase
             "nascimento"  => "DATE NULL",            // Data de Nascimento. (yyyy-mm-dd)
             "sexo"        => "VARCHAR(1) NULL",      // F/M.
             "fotoUrl"     => "VARCHAR(2048) NULL",   // URL da foto.
+
+            "whatsapp"        => "VARCHAR(3) NULL DEFAULT 'NAO'",      // SIM/NAO.
+            "info"        => "VARCHAR(3) NULL DEFAULT 'NAO'",      // SIM/NAO.
+            "fe"        => "VARCHAR(3) NULL DEFAULT 'NAO'",      // SIM/NAO.
+            "contato"        => "VARCHAR(3) NULL DEFAULT 'NAO'",      // SIM/NAO.
+            "palco"        => "VARCHAR(3) NULL DEFAULT 'NAO'",      // SIM/NAO.
+            "calouro"        => "VARCHAR(3) NULL DEFAULT 'NAO'",      // SIM/NAO.
 
             "religiao" => "VARCHAR(255) NULL",        // Igreja que frequenta ou religião.
 
@@ -225,6 +232,28 @@ class BdVisitantes extends DataBase
 
         // Monta SQL.
         $sql = "SELECT COUNT(*) as qtd FROM (SELECT count(*) FROM $table WHERE dtCreate >= '$dataIni' and dtCreate < '$dataFim' GROUP BY pulseira) tbl";
+
+        // Executa o select
+        $r = parent::executeQuery($sql);
+
+        // Verifica se não teve retorno.
+        if (!$r)
+            return false;
+
+        // Retorna primeira linha.
+        return $r[0]['qtd'];
+    }
+
+    public function qtdCadastrosPorUsuario($idUser)
+    {
+        // Ajusta nome real da tabela.
+        $table = parent::fullTableName();
+        // $tableInnerMidia = parent::fullTableName('midia');
+        // $tableInnerLogin = parent::fullTableName('login');
+        // $tableInnerUsers = parent::fullTableName('users');
+
+        // Monta SQL.
+        $sql = "SELECT count(*) as qtd FROM $table WHERE idLoginCreate = '$idUser' LIMIT 1;";
 
         // Executa o select
         $r = parent::executeQuery($sql);

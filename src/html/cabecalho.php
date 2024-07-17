@@ -22,10 +22,10 @@ if (in_array($user['id'], $ids)) {
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link active" href="<?php echo BASE_URL . '?page=home'; ?>">Início</a>
+          <a class="nav-link" href="<?php echo BASE_URL . '?page=home'; ?>">Início</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link active" href="<?php echo BASE_URL . '?page=cadastro'; ?>">Cadastro</a>
+          <a class="nav-link" href="<?php echo BASE_URL . '?page=cadastro'; ?>">Cadastro</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="<?php echo BASE_URL . '?page=presenca'; ?>">Presença</a>
@@ -39,23 +39,9 @@ if (in_array($user['id'], $ids)) {
         <li class="nav-item">
           <a class="nav-link" href="<?php echo BASE_URL . '?api=login&acao=sair'; ?>">Sair</a>
         </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Dropdown
-          </a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#">Action</a></li>
-            <li><a class="dropdown-item" href="#">Another action</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#">Something else here</a></li>
-          </ul>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link disabled">Disabled</a>
-        </li>
       </ul>
-      <form class="d-flex" action="<?php echo BASE_URL . '?page=pesquisa'; ?>" role="search" method="post">
-        <input class="form-control me-2" type="search" name="f-pesquisa" placeholder="Search" aria-label="Search">
+      <form class="d-flex" action="<?php echo BASE_URL . '?page=pesquisa'; ?>" method="post">
+        <input class="form-control me-2" type="search" name="f-pesquisa" placeholder="" aria-label="Search">
         <button class="btn btn-outline-success" type="submit">Pesquisar</button>
       </form>
     </div>

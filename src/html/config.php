@@ -5,7 +5,7 @@ Seguranca::checkAdmin();
 
 ?>
 
-<div class="container">
+<div class="container my-4">
     <h1>Config</h1>
 
     <a href="#" onclick="executa('teste')">Teste</a>

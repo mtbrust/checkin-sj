@@ -105,7 +105,9 @@ class DataBase
 			// Cria objeto de conexão via PDO.
 			$pdo_conn = new \PDO($stringConnection, BASE_BDS[$conn]['USERNAME'], BASE_BDS[$conn]['PASSWORD']);
 			// Oculta erros de conexão.
-			$pdo_conn->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_SILENT);
+			if (BASE_ERRO_SQL) {
+				$pdo_conn->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_SILENT);
+			}
 
 			// Guarda objeto de conexão no parâmetro conn.
 			self::$conns[$conn] = $pdo_conn;

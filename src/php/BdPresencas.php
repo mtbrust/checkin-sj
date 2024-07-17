@@ -216,7 +216,27 @@ class BdPresencas extends DataBase
     }
 
     
+    public function qtdPresencasPorUsuario($idUser)
+    {
+        // Ajusta nome real da tabela.
+        $table = parent::fullTableName();
+        // $tableInnerMidia = parent::fullTableName('midia');
+        // $tableInnerLogin = parent::fullTableName('login');
+        // $tableInnerUsers = parent::fullTableName('users');
 
+        // Monta SQL.
+        $sql = "SELECT count(*) as qtd FROM $table WHERE idLoginCreate = '$idUser' LIMIT 1;";
+
+        // Executa o select
+        $r = parent::executeQuery($sql);
+
+        // Verifica se não teve retorno.
+        if (!$r)
+            return false;
+
+        // Retorna primeira linha.
+        return $r[0]['qtd'];
+    }
     
 
     public function dias($pulseira)

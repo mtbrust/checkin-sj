@@ -2,7 +2,7 @@
 Seguranca::check();
 ?>
 
-<div class="container">
+<div class="container my-4">
     <h1>Presença</h1>
 
     <div class="my-2">

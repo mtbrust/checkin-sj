@@ -19,7 +19,7 @@ foreach ($users as $key => $user) {
 ?>
 
 
-<div class="container">
+<div class="container my-4">
     <h1>Equipe</h1>
     <div class="row">
         <div class="col">

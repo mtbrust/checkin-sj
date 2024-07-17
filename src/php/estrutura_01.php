@@ -28,6 +28,7 @@ $page_name = BASE_NAME . ' - ' . $page;
     <link href="src/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="src/css/foto3.css">
     <link rel="stylesheet" href="src/css/sweetalert2.min.css">
+    <link rel="stylesheet" href="src/css/default-min.css">
 </head>
 <body>
     <?php

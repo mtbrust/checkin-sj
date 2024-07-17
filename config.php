@@ -60,3 +60,11 @@ define("BASE_BDS", [
         'PREFIX'    => 'sj_',
     ],
 ]);
+
+
+/**
+ * * ERRO CONEXÃO BANCO DE DADOS
+ * Exibe ou oculta os erros gerados na execução de sql.
+ */
+define("BASE_ERRO_SQL", true);
+

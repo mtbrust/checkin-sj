@@ -7,16 +7,10 @@ $html = '';
 $post = $_POST;
 $get = $_GET;
 
-if (!isset($_POST['f-fullName'])) {
-    $resultado = [
-        'ret' => false,
-        'msg' => $msg,
-        'dados' => [],
-        'post' => $post,
-        'get' => $get,
-    ];
-    echo json_encode($resultado);
-}
+
+verificaObrigatorio('f-fullName', 'Nome é obrigatório.');
+verificaObrigatorio('f-pulseira', 'Pulseira é obrigatório.');
+verificaObrigatorio('f-tpulseira', 'Cor de Pulseira é obrigatório.');
 
 
 $BdVisitantes = new BdVisitantes();
@@ -24,19 +18,32 @@ $BdVisitantes = new BdVisitantes();
 // Monta os campos de login.
 $fields = [
     'tpulseira' => strtoupper($_POST['f-tpulseira']),
-    'pulseira' => strtoupper($_POST['f-pulseira']),
-    'telefone' => strtoupper($_POST['f-telefone']),
+    'pulseira' => $_POST['f-pulseira'],
     'fullName' => strtoupper($_POST['f-fullName']),
-    'sexo' => strtoupper($_POST['f-sexo']),
-    'religiao' => strtoupper($_POST['f-religiao']),
-    'email' => strtoupper($_POST['f-email']),
-    'cidade' => strtoupper($_POST['f-cidade']),
-    'bairro' => strtoupper($_POST['f-bairro']),
-    'endereco' => strtoupper($_POST['f-endereco']),
-    'nascimento' => $_POST['f-nascimento-ano'] . '-' . $_POST['f-nascimento-mes'] . '-' . $_POST['f-nascimento-dia'],
+    'telefone' => isset($_POST['f-telefone'])?strtoupper($_POST['f-telefone']):'',
+    'sexo' => isset($_POST['f-sexo'])?strtoupper($_POST['f-sexo']):'',
+    'religiao' => isset($_POST['f-religiao'])?strtoupper($_POST['f-religiao']):'',
+    'email' => isset($_POST['f-email'])?strtoupper($_POST['f-email']):'',
+    'cidade' => isset($_POST['f-cidade'])?strtoupper($_POST['f-cidade']):'',
+    'bairro' => isset($_POST['f-bairro'])?strtoupper($_POST['f-bairro']):'',
+    'endereco' => isset($_POST['f-endereco'])?strtoupper($_POST['f-endereco']):'',
+
+    'whatsapp' => isset($_POST['f-whatsapp'])?strtoupper($_POST['f-whatsapp']):'',
+    'info' => isset($_POST['f-info'])?strtoupper($_POST['f-info']):'',
+    'fe' => isset($_POST['f-fe'])?strtoupper($_POST['f-fe']):'',
+    'contato' => isset($_POST['f-contato'])?strtoupper($_POST['f-contato']):'',
+    'palco' => isset($_POST['f-palco'])?strtoupper($_POST['f-palco']):'',
+    'calouro' => isset($_POST['f-calouro'])?strtoupper($_POST['f-calouro']):'',
+
+    'nascimento' => '',
     'idStatus'  => 1,
     'status'  => 1, // Cadastro
 ];
+
+if (isset($_POST['f-nascimento-ano']) && isset($_POST['f-nascimento-mes']) && isset($_POST['f-nascimento-dia'])) {
+    $fields['nascimento'] = $_POST['f-nascimento-ano'] . '-' . $_POST['f-nascimento-mes'] . '-' . $_POST['f-nascimento-dia'];
+}
+
 // Insere os login.
 $id = $BdVisitantes->insert($fields);
 
@@ -53,3 +60,15 @@ $resultado = [
 ];
 
 echo json_encode($resultado);
+
+
+function verificaObrigatorio($campo, $msg) {
+    if (!isset($_POST[$campo]) || empty($_POST[$campo])) {
+        $resultado = [
+            'ret' => false,
+            'msg' => $msg
+        ];
+        echo json_encode($resultado);
+        exit;
+    }
+}

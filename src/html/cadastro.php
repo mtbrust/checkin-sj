@@ -7,7 +7,7 @@ Seguranca::check();
 
 ?>
 
-<div class="container">
+<div class="container my-4">
     <h1>Cadastro</h1>
 
     <div class="my-2">
@@ -15,7 +15,7 @@ Seguranca::check();
         <form class="row" id="form_visitante" name="form_visitante" onsubmit="return false;" enctype="multipart/form-data">
 
             <div class="col-12 mb-3">
-                <label for="f-tpulseira" class="form-label">Tipo Pulseira</label><br>
+                <label for="f-tpulseira" class="form-label">Tipo Pulseira (Obrigatório)</label><br>
                 <div class="form-check form-check-inline tpulseira" style="border-color: #d1d1d1 !important;">
                     <input class="form-check-input" type="radio" name="f-tpulseira" id="f-branca" value="branca" required>
                     <label class="form-check-label" for="f-branca"><i class="fas fa-square text-light"></i>Branca</label>
@@ -35,7 +35,7 @@ Seguranca::check();
                 <div id="tpulseiraHelp" class="form-text">Cor da pulseira.</div>
             </div>
             <div class="col-5 mb-3">
-                <label for="f-pulseira" class="form-label">Pulseira (Nova)</label>
+                <label for="f-pulseira" class="form-label">Pulseira (Obrigatório)</label>
                 <input type="number" class="form-control" id="f-pulseira" name="f-pulseira" placeholder="" value="">
                 <div id="pulseiraHelp" class="form-text">Número da pulseira do visitante.</div>
             </div>
@@ -45,8 +45,28 @@ Seguranca::check();
                 <div id="telefoneHelp" class="form-text">Número de telefone do visitante ou responsável com ddd.</div>
             </div>
 
+            <div class="col-6 col-sm-3 mb-3">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="SIM" id="f-whatsapp" name="f-whatsapp">
+                    <label class="form-check-label" for="f-whatsapp">
+                        Whatsapp
+                    </label>
+                </div>
+                <div id="telefoneHelp" class="form-text">Número é whatsapp?</div>
+            </div>
+
+            <div class="col-6 col-sm-3 mb-3">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="SIM" id="f-info" name="f-info">
+                    <label class="form-check-label" for="f-info">
+                        Info
+                    </label>
+                </div>
+                <div id="telefoneHelp" class="form-text">Podemos enviar informações?</div>
+            </div>
+
             <div class="col-12 mb-3">
-                <label for="f-fullName" class="form-label">Nome Completo</label>
+                <label for="f-fullName" class="form-label">Nome Completo (Obrigatório)</label>
                 <input type="text" class="form-control" id="f-fullName" name="f-fullName" placeholder="" style="text-transform: uppercase;" value="">
                 <div id="fullNameHelp" class="form-text">Nome completo para poder entrar no sistema.</div>
             </div>
@@ -65,6 +85,17 @@ Seguranca::check();
                 <input type="text" class="form-control" id="f-religiao" name="f-religiao" placeholder="" style="text-transform: uppercase;" value="">
                 <div id="religiaoHelp" class="form-text">Igreja ou religião que participa.</div>
             </div>
+
+            <div class="col-6 col-sm-3 mb-3">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="SIM" id="f-fe" name="f-fe">
+                    <label class="form-check-label" for="f-fe">
+                        Mesma fé
+                    </label>
+                </div>
+                <div id="telefoneHelp" class="form-text">Visitante tem a mesma fé que temos?</div>
+            </div>
+
             <div class="col-12 mb-3">
                 <label for="f-email" class="form-label">E-Mail</label>
                 <input type="text" class="form-control" id="f-email" name="f-email" placeholder="">
@@ -83,17 +114,48 @@ Seguranca::check();
                 <input type="text" class="form-control" id="f-endereco" name="f-endereco" placeholder="" style="text-transform: uppercase;" value="">
                 <div class="form-text">Endereço com rua, número e complemento.</div>
             </div>
+
+            <div class="col-6 col-sm-3 mb-3">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="SIM" id="f-contato" name="f-contato">
+                    <label class="form-check-label" for="f-contato">
+                        Contato
+                    </label>
+                </div>
+                <div id="telefoneHelp" class="form-text">Gostaria de conversar?</div>
+            </div>
+
+            <div class="col-6 col-sm-3 mb-3">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="SIM" id="f-palco" name="f-palco">
+                    <label class="form-check-label" for="f-palco">
+                        Palco
+                    </label>
+                </div>
+                <div id="telefoneHelp" class="form-text">Participaria no palco?</div>
+            </div>
+
+            <div class="col-6 col-sm-3 mb-3">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="SIM" id="f-calouro" name="f-calouro">
+                    <label class="form-check-label" for="f-calouro">
+                        Calouro
+                    </label>
+                </div>
+                <div id="telefoneHelp" class="form-text">Primeira vez no evento?</div>
+            </div>
+
             <div class="col-12 mb-3">
                 <label for="f-nascimento" class="form-label">Nascimento</label>
                 <div class="row">
                     <div class="col-3 px-1">
                         <input type="number" class="form-control" id="f-nascimento-dia" name="f-nascimento-dia" onkeyup="changeDay(this)" placeholder="" value="">
                     </div>
-                    <div class="col-1">/</div>
+                    <div class="col-1 px-1 text-center">/</div>
                     <div class="col-3 px-1">
                         <input type="number" class="form-control" id="f-nascimento-mes" name="f-nascimento-mes" onkeyup="changeMonth(this)" placeholder="" value="">
                     </div>
-                    <div class="col-1">/</div>
+                    <div class="col-1 px-1 text-center">/</div>
                     <div class="col-4 px-1">
                         <input type="number" class="form-control" id="f-nascimento-ano" name="f-nascimento-ano" onkeyup="changeYear(this)" placeholder="" value="">
                     </div>
