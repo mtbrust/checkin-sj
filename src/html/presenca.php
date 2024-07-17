@@ -81,6 +81,9 @@ Seguranca::check();
                     timerProgressBar: true,
                 });
 
+                $('#f-pulseira').focus();
+                $('#f-pulseira').val('');
+
             } else {
 
                 // Notificação.

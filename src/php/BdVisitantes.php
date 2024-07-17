@@ -244,6 +244,45 @@ class BdVisitantes extends DataBase
         return $r[0]['qtd'];
     }
 
+    public function qtdCadastrosPulseira()
+    {
+        // Nome completo da tabela.
+        $table = parent::fullTableName();
+
+        // Monta SQL.
+        $sql = "SELECT COUNT(*) as qtd FROM (SELECT count(*) FROM $table GROUP BY pulseira, tpulseira) tbl";
+
+        // Executa o select
+        $r = parent::executeQuery($sql);
+
+        // Verifica se não teve retorno.
+        if (!$r)
+            return false;
+
+        // Retorna primeira linha.
+        return $r[0]['qtd'];
+    }
+    
+
+    public function qtdCadastrosPulseiraDia($dia)
+    {
+        // Nome completo da tabela.
+        $table = parent::fullTableName();
+
+        // Monta SQL.
+        $sql = "SELECT COUNT(*) as qtd FROM (SELECT COUNT(*) as qtd FROM $table WHERE dtCreate >= '$dia 00:00:00' AND dtCreate <= '$dia 23:59:59' GROUP BY pulseira, tpulseira)tbl";
+
+        // Executa o select
+        $r = parent::executeQuery($sql);
+
+        // Verifica se não teve retorno.
+        if (!$r)
+            return false;
+
+        // Retorna primeira linha.
+        return $r[0]['qtd'];
+    }
+
     public function qtdCadastrosPorUsuario($idUser)
     {
         // Ajusta nome real da tabela.
