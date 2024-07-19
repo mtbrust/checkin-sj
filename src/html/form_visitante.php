@@ -6,6 +6,32 @@
     </div>
 
     <div class="col-12 mb-3">
+        <label for="f-foto" class="form-label">Foto de perfil</label>
+        <div class="row">
+            <div class="col-12">
+                <a class="btn btn-sm btn-info m-1" onclick="obterCameras()">Ligar Câmera</a>
+                <div id="cameras" style="display: contents;"></div>
+            </div>
+            <div class="col-12">
+                
+            </div>
+            <div class="col-6 text-center">
+                <div id="boxvideo" style="width: 100px; margin:auto;">
+                    <video id="video" autoplay style="width: 100px; margin:auto;"></video>
+                </div>
+            </div>
+            <div class="col-6 text-center">
+                <img src="" id="img-out" alt="" style="width: 100px; margin:auto;">
+            </div>
+            <div class="col-12 text-end">
+                <span id="tamanho" class="d-none"></span>
+                <input type="text" id="f-fotoPerfil" name="f-fotoPerfil" hidden>
+                <a class="btn btn-sm btn-success m-1" onclick="tirarFoto()">Tirar Foto</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 mb-3">
         <label for="f-tpulseira" class="form-label">Tipo Pulseira (Obrigatório)</label><br>
         <div class="form-check form-check-inline tpulseira" style="border-color: #d1d1d1 !important;">
             <input class="form-check-input" type="radio" name="f-tpulseira" id="f-branca" value="branca" required <?php echo isset($visitante['tpulseira']) && $visitante['tpulseira'] == 'BRANCA' ? 'checked' : ''; ?>>
@@ -146,8 +172,6 @@
             </div>
         </div>
     </div>
-
-
     <!--
             <div class="col-12 mb-3">
                 <label for="f-foto" class="form-label">Foto de perfil</label>
@@ -219,187 +243,197 @@
         } else {
             echo '<button class="btn btn-success" onclick="btncadastrar()" id="btn_cadastrar">Cadastrar</button>';
         }
+
         ?>
 
     </div>
 
+
+
+    <style>
+        .tpulseira {
+            border-bottom: solid;
+            border-width: 3px;
+            border-radius: 5px;
+        }
+    </style>
+
+
+    <script src="src/js/jquery.min.js"></script>
+    <script src="src/js/html2canvas.min.js"></script>
+    <script src="src/js/dom-to-image.min.js"></script>
+    <script src="src/js/camera.js"></script>
+
+    <script>
+        function btncadastrar() {
+
+            form = $('#form_visitante')[0];
+            // Preparação dos dados.
+            dados = new FormData(form);
+
+            // Deixa pulseira sempre como 0;
+            if (dados.get('f-oldPulseira') == '') {
+                dados.set('f-oldPulseira', 0);
+            }
+
+            $('#btn_cadastrar').text('Aguarde');
+            $('#btn_cadastrar').prop('disabled', true);
+
+            // Chamada AJAX
+            ajaxDados('<?php echo BASE_URL . '?api=cadastro'; ?>', dados, function(ret) {
+                // Para testes
+                console.log(ret);
+
+                // Verifica se teve retorno ok.
+                if (ret.ret) {
+
+                    $('#form_visitante').each(function() {
+                        this.reset();
+                    });
+
+                    $("#f-fotoPerfil").val('');
+                    $("#img-out").prop('src', '');
+                    $("#video").stop();
+
+                    $('#f-fullName').focus();
+
+                    // Notificação.
+                    Swal.fire({
+                        icon: "success",
+                        title: "Sucesso.",
+                        text: ret.msg,
+                        toast: true,
+                        position: "top-end",
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                    });
+                } else {
+
+                    // code...
+
+                    // Notificação.
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erro.',
+                        text: ret.msg,
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                    });
+                }
+
+                $('#btn_cadastrar').text('Cadastrar');
+                $('#btn_cadastrar').prop('disabled', false);
+            });
+        }
+
+        function btnatualizar() {
+
+            form = $('#form_visitante')[0];
+            // Preparação dos dados.
+            dados = new FormData(form);
+
+            <?php
+            if (isset($visitante) && $visitante) {
+                echo "dados.append('id', '" . $_GET['id'] . "');";
+            }
+            ?>
+
+            // Deixa pulseira sempre como 0;
+            if (dados.get('f-oldPulseira') == '') {
+                dados.set('f-oldPulseira', 0);
+            }
+
+            $('#btn_cadastrar').text('Aguarde');
+            $('#btn_cadastrar').prop('disabled', true);
+
+            // Chamada AJAX
+            ajaxDados('<?php echo BASE_URL . '?api=cadastro'; ?>', dados, function(ret) {
+                // Para testes
+                console.log(ret);
+
+                // Verifica se teve retorno ok.
+                if (ret.ret) {
+
+                    $('#form_visitante').each(function() {
+                        this.reset();
+                    });
+
+                    $("#f-fotoPerfil").val('');
+                    $("#img-out").prop('src', '');
+                    $("#video").stop();
+
+                    $('#f-pulseira').focus();
+
+                    // Notificação.
+                    Swal.fire({
+                        icon: "success",
+                        title: "Sucesso.",
+                        text: ret.msg,
+                        toast: true,
+                        position: "top-end",
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                    });
+
+                    window.location.reload(true);
+                } else {
+
+
+                    // Notificação.
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erro.',
+                        text: ret.msg,
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                    });
+                }
+
+                $('#btn_cadastrar').text('Atualizar');
+                $('#btn_cadastrar').prop('disabled', false);
+            })
+        }
+
+        function changeDay(e) {
+            valor = $(e).val();
+            qtd = valor.length;
+
+            // Varifica se é um dia correto.
+            if (valor < 1 && valor > 31) {
+                $(e).val('');
+            }
+
+            // Passa para próximo campo.
+            if (qtd == 2) {
+                $('#f-nascimento-mes').focus();
+            }
+
+        }
+
+        function changeMonth(e) {
+            valor = $(e).val();
+            qtd = valor.length;
+
+            // Varifica se é um mês correto.
+            if (valor < 1 && valor > 31) {
+                $(e).val('');
+            }
+
+            // Passa para próximo campo.
+            if (qtd == 2) {
+                $('#f-nascimento-ano').focus();
+            }
+        }
+
+        function changeYear(e) {
+            valor = $(e).val();
+            qtd = valor.length;
+
+        }
+    </script>
+
 </form>
-
-
-<style>
-    .tpulseira {
-        border-bottom: solid;
-        border-width: 3px;
-        border-radius: 5px;
-    }
-</style>
-
-
-<script>
-    function btnatualizar() {
-
-        form = $('#form_visitante')[0];
-        // Preparação dos dados.
-        dados = new FormData(form);
-        dados.append('id', '<?php echo $_GET['id']; ?>'); // Exemplo de inclusão de valores.
-
-        // Deixa pulseira sempre como 0;
-        if (dados.get('f-oldPulseira') == '') {
-            dados.set('f-oldPulseira', 0);
-        }
-
-        $('#btn_cadastrar').text('Aguarde');
-        $('#btn_cadastrar').prop('disabled', true);
-
-        // Chamada AJAX
-        ajaxDados('<?php echo BASE_URL . '?api=cadastro'; ?>', dados, function(ret) {
-            // Para testes
-            console.log(ret);
-
-            // Verifica se teve retorno ok.
-            if (ret.ret) {
-
-                $('#form_visitante').each(function() {
-                    this.reset();
-                });
-
-                $('#f-pulseira').focus();
-
-                // Notificação.
-                Swal.fire({
-                    icon: "success",
-                    title: "Sucesso.",
-                    text: ret.msg,
-                    toast: true,
-                    position: "top-end",
-                    showConfirmButton: false,
-                    timer: 3000,
-                    timerProgressBar: true,
-                });
-
-                window.location.reload(true);
-            } else {
-
-                // code...
-
-                // Notificação.
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Erro.',
-                    text: ret.msg,
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                });
-            }
-
-            $('#btn_cadastrar').text('Atualizar');
-            $('#btn_cadastrar').prop('disabled', false);
-        })
-    }
-
-    function btncadastrar() {
-
-        form = $('#form_visitante')[0];
-        // Preparação dos dados.
-        dados = new FormData(form);
-
-        // Deixa pulseira sempre como 0;
-        if (dados.get('f-oldPulseira') == '') {
-            dados.set('f-oldPulseira', 0);
-        }
-
-        $('#btn_cadastrar').text('Aguarde');
-        $('#btn_cadastrar').prop('disabled', true);
-
-        // dados.append('f-formToken', '{{tokens.pageApi}}');  // Token para uso de API da própria página.
-        // dados.append('f-formToken', '{{tokens.pageFunc}}'); // Token para uso envio de dados para própria página.
-        // dados.append('campo', 'valor'); // Exemplo de inclusão de valores.
-
-        // Chamada AJAX
-        ajaxDados('<?php echo BASE_URL . '?api=cadastro'; ?>', dados, function(ret) {
-            // Para testes
-            console.log(ret);
-
-            // Verifica se teve retorno ok.
-            if (ret.ret) {
-
-                $('#form_visitante').each(function() {
-                    this.reset();
-                });
-
-                $('#f-pulseira').focus();
-
-                // Notificação.
-                Swal.fire({
-                    icon: "success",
-                    title: "Sucesso.",
-                    text: ret.msg,
-                    toast: true,
-                    position: "top-end",
-                    showConfirmButton: false,
-                    timer: 3000,
-                    timerProgressBar: true,
-                });
-            } else {
-
-                // code...
-
-                // Notificação.
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Erro.',
-                    text: ret.msg,
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                });
-            }
-
-            $('#btn_cadastrar').text('Cadastrar');
-            $('#btn_cadastrar').prop('disabled', false);
-        })
-    }
-
-    function changeDay(e) {
-        valor = $(e).val();
-        qtd = valor.length;
-
-        // Varifica se é um dia correto.
-        if (valor < 1 && valor > 31) {
-            $(e).val('');
-        }
-
-        // Passa para próximo campo.
-        if (qtd == 2) {
-            $('#f-nascimento-mes').focus();
-        }
-
-    }
-
-    function changeMonth(e) {
-        valor = $(e).val();
-        qtd = valor.length;
-
-        // Varifica se é um mês correto.
-        if (valor < 1 && valor > 31) {
-            $(e).val('');
-        }
-
-        // Passa para próximo campo.
-        if (qtd == 2) {
-            $('#f-nascimento-ano').focus();
-        }
-    }
-
-    function changeYear(e) {
-        valor = $(e).val();
-        qtd = valor.length;
-
-    }
-
-    function oi() {
-
-        console.log('test');
-    }
-</script>

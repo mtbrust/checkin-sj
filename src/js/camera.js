@@ -23,6 +23,10 @@ function stopVideoStream() {
         videoStream.getTracks().forEach((track) => {
             track.stop();
         });
+        
+        videoStream.getTracks().forEach((video) => {
+            video.stop();
+        });
     }
 }
 
@@ -51,6 +55,10 @@ async function ligarCamera(canSelected) {
 
 // Lista na telas as câmeras que dispositivo tem.
 function listarCameras(mediaDevices) {
+
+    // Limpa lista de cameras.
+    $('#cameras').html('');
+
     let count = 1;
     mediaDevices.forEach(mediaDevice => {
         if (mediaDevice.kind === 'videoinput' && mediaDevice.deviceId != '') {
@@ -61,70 +69,27 @@ function listarCameras(mediaDevices) {
             }
 
             // Mostra na tela as opções de cameras.
-            link = '<a href="#" onclick="ligarCamera(\'' + mediaDevice.deviceId + '\')">Camera ' + count++ + '</a>';
+            link = '<a class="btn btn-sm btn-info m-1" onclick="ligarCamera(\'' + mediaDevice.deviceId + '\')"><i class="fas fa-camera"></i> ' + count++ + '</a>';
             $('#cameras').append(link);
         }
     });
 }
 
+// Chama a função listarCameras com as câmeras que o navegador encontrou.
 function obterCameras() {
     navigator.mediaDevices.enumerateDevices().then(listarCameras);
 }
 
-function funcScreenshot() {
-
-    let canvas = document.createElement("canvas");
-
-    // Obtém as dimensões em formato 4:5
-    // dimensoes = dimensiona(video.videoWidth, video.videoHeight, 4 / 5);
-    // canvas.width = dimensoes.w;
-    // canvas.height = dimensoes.h;
-    // canvas.getContext("2d").drawImage(video, dimensoes.x, dimensoes.y);
-
-
-    canvas.getContext("2d").drawImage(video, video.videoWidth, video.videoHeight);
-
-    // exibe a imagem.
-    imageBase64 = canvas.toDataURL("image/png");
-    console.log(imageBase64);
-    $('#img').prop('src', imageBase64);
-
-    // reduz o tamanho.
-    divToPng();
-}
-
-function dimensiona(w, h, aspectRatio = 4 / 5) {
-
-    // get the aspect ratio of the input image
-    const inputImageAspectRatio = w / h;
-
-    // if it's bigger than our target aspect ratio
-    let outputWidth = w;
-    let outputHeight = h;
-    if (inputImageAspectRatio > aspectRatio) {
-        outputWidth = h * aspectRatio;
-    } else if (inputImageAspectRatio < aspectRatio) {
-        outputHeight = h / aspectRatio;
-    }
-
-    // calculate the position to draw the image at
-    const outputX = (outputWidth - w) * .5;
-    const outputY = (outputHeight - h) * .5;
-
-    return {
-        x: outputX,
-        y: outputY,
-        w: outputWidth,
-        h: outputHeight
-    };
-}
-
-function divToPng() {
-    html2canvas($("#img")[0]).then((canvas) => {
-        console.log(canvas.toDataURL());
+// Realiza a conversão de uma tag em uma imagem.
+function tirarFoto() {
+    html2canvas($("#video")[0]).then((canvas) => {
+        console.log('otimizada', canvas.toDataURL());
         imageSize(canvas.toDataURL());
         $("#img-out").prop('src', canvas.toDataURL());
+        $("#f-fotoPerfil").val(canvas.toDataURL());
     });
+    
+    $("#video").stop();
 }
 
 function imageSize(base64) {

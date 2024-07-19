@@ -5,29 +5,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Captura foto</title>
-
-    <link rel="stylesheet" href="src/css/foto2.css">
 </head>
 
 <body>
 
 
-    <hr>
     <a href="#" onclick="obterCameras()">Ligar Câmera</a>
-    <a href="#" onclick="funcScreenshot()">Gravar</a>
+    <a href="#" onclick="tirarFoto()">Tirar Foto</a>
     <hr>
     Cameras
     <br>
     <div id="cameras"></div>
+    <video id="video" autoplay style="width: 50px;"></video>
     <hr>
-    <video id="video" autoplay style="max-width: 150px;"></video>
-    <hr>
-
-    <div id="screenshots"></div>
-    <div id="imgDiv">
-        <img src="" id="img" alt="" style="max-width: 50px; max-height: 50px;">
-    </div>
-    <img src="" id="img-out" alt="">
+    <img src="" id="img-out" alt="" style="width: 100px;">
     <span id="tamanho"></span>
 
 

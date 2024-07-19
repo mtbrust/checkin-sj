@@ -50,7 +50,7 @@ class BdVisitantes extends DataBase
             "email"       => "VARCHAR(160) NULL",    // E-mail principal.
             "nascimento"  => "DATE NULL",            // Data de Nascimento. (yyyy-mm-dd)
             "sexo"        => "VARCHAR(1) NULL",      // F/M.
-            "fotoUrl"     => "VARCHAR(2048) NULL",   // URL da foto.
+            "foto"     => "LONGTEXT NULL",   // URL da foto.
 
             "whatsapp"        => "VARCHAR(3) NULL DEFAULT 'NAO'",      // SIM/NAO.
             "info"        => "VARCHAR(3) NULL DEFAULT 'NAO'",      // SIM/NAO.
