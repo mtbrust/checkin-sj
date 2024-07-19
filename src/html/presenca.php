@@ -3,9 +3,20 @@ Seguranca::check();
 ?>
 
 <div class="container my-4">
-    <h1>Presença</h1>
+    <div class="row">
+        <div class="col-12">
+            <h1>Presença</h1>
+        </div>
+    </div>
 
-    <div class="my-2">
+
+    <div class="row">
+        <div class="col-12 text-center" id="status">
+
+        </div>
+    </div>
+
+    <div class="row my-2">
 
         <form class="row" id="form_presenca" name="form_presenca" onsubmit="return false;" enctype="multipart/form-data">
 
@@ -29,13 +40,13 @@ Seguranca::check();
                 </div>
                 <div id="tpulseiraHelp" class="form-text">Cor da pulseira.</div>
             </div>
-            <div class="col-5 mb-3">
+            <div class="col-6 mb-3">
                 <label for="f-pulseira" class="form-label">Pulseira</label>
-                <input type="number" class="form-control" id="f-pulseira" name="f-pulseira" placeholder="" value="">
+                <input type="number" class="form-control" id="f-pulseira" name="f-pulseira" placeholder="" value="" required>
                 <div id="pulseiraHelp" class="form-text">Número da pulseira do visitante.</div>
             </div>
 
-            <div class="mb-3 mt-3 text-end">
+            <div class="col-6 mb-3 mt-3 text-end">
                 <button class="btn btn-success" onclick="executa()" id="btn_cadastrar">Presença</button>
             </div>
         </form>
@@ -83,6 +94,20 @@ Seguranca::check();
 
                 $('#f-pulseira').focus();
                 $('#f-pulseira').val('');
+
+                //status
+
+                if (ret.status.status == 2) {
+                    $('#status').html('Visitante: ' + ret.status.fullName + '<h4><span class="badge text-bg-warning">Atualizar Cadastro!</span></h4>');
+                }
+
+                if (ret.status.status == 3) {
+                    $('#status').html('Visitante: ' + ret.status.fullName + '<h4><span class="badge text-bg-warning">Atenção!</span></h4>');
+                }
+
+                if (ret.status.status == 4) {
+                    $('#status').html('Visitante: ' + ret.status.fullName + '<h4><span class="badge text-bg-danger">Bloqueado!</span></h4>');
+                }
 
             } else {
 

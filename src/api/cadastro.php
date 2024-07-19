@@ -12,6 +12,12 @@ verificaObrigatorio('f-fullName', 'Nome é obrigatório.');
 verificaObrigatorio('f-pulseira', 'Pulseira é obrigatório.');
 verificaObrigatorio('f-tpulseira', 'Cor de Pulseira é obrigatório.');
 
+// Verifico se é para editar um cadastro.
+$editar = false;
+if (isset($_POST['id']) && $_POST['id'] != 0) {
+    $editar = true;
+}
+
 
 $BdVisitantes = new BdVisitantes();
 
@@ -37,18 +43,22 @@ $fields = [
 
     'nascimento' => '',
     'idStatus'  => 1,
-    'status'  => 1, // Cadastro
+    'status'  => isset($_POST['f-status'])?strtoupper($_POST['f-status']):'1', // Cadastro
 ];
 
 if (isset($_POST['f-nascimento-ano']) && isset($_POST['f-nascimento-mes']) && isset($_POST['f-nascimento-dia'])) {
     $fields['nascimento'] = $_POST['f-nascimento-ano'] . '-' . $_POST['f-nascimento-mes'] . '-' . $_POST['f-nascimento-dia'];
 }
 
-// Insere os login.
-$id = $BdVisitantes->insert($fields);
+if ($editar) {
+    $id = $BdVisitantes->update($_POST['id'], $fields);
+} else {
+    // Insere os login.
+    $id = $BdVisitantes->insert($fields);
+}
 
 if ($id) {
-    $msg = 'Cadastro realizado com sucesso.';
+    $msg = 'Ação realizada com sucesso.';
 }
 
 $resultado = [

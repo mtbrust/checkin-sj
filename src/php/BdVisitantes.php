@@ -64,7 +64,7 @@ class BdVisitantes extends DataBase
             "cidade" => "VARCHAR(255) NULL",        // Endereço.
             "bairro" => "VARCHAR(255) NULL",
             "endereco" => "VARCHAR(255) NULL",
-            "status" => "INT NULL", // [0] Normal, [1] Cadastro, [2] Atenção, [3] Bloqueado
+            "status" => "INT NULL", // [1] OK, [2] Atualizar, [3] Atenção, [4] Bloqueado
 
 
 
@@ -305,6 +305,48 @@ class BdVisitantes extends DataBase
         return $r[0]['qtd'];
     }
 
+    public function pesquisar($termo)
+    {
+        // Ajusta nome real da tabela.
+        $table = parent::fullTableName();
+        // $tableInnerMidia = parent::fullTableName('midia');
+        // $tableInnerLogin = parent::fullTableName('login');
+        // $tableInnerUsers = parent::fullTableName('users');
+
+        // Monta SQL.
+        $sql = "SELECT * FROM $table WHERE id = '$termo' OR fullName like '%$termo%' OR telefone = '$termo' OR pulseira = '$termo' OR tpulseira = '$termo' OR endereco like '%$termo%';";
+
+        // Executa o select
+        $r = parent::executeQuery($sql);
+
+        // Verifica se não teve retorno.
+        if (!$r)
+            return false;
+
+        // Retorna primeira linha.
+        return $r;
+    }
+
+    public function getStatus($pulseira, $tpulseira)
+    {
+        // Ajusta nome real da tabela.
+        $table = parent::fullTableName();
+
+        $tpulseira = strtoupper($tpulseira);
+
+        // Monta SQL.
+        $sql = "SELECT fullName, status FROM $table WHERE pulseira = '$pulseira' AND tpulseira = '$tpulseira' AND status > 1;";
+
+        // Executa o select
+        $r = parent::executeQuery($sql);
+
+        // Verifica se não teve retorno.
+        if (!$r)
+            return false;
+
+        // Retorna primeira linha.
+        return $r[0];
+    }
 
     /**
      * consultaPersonalizada

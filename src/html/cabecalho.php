@@ -1,7 +1,5 @@
 <?php
 
-
-
 $user = Seguranca::getSession();
 $ids = Seguranca::getIdsAdmins();
 
@@ -33,7 +31,7 @@ if (in_array($user['id'], $ids)) {
         <li class="nav-item">
           <a class="nav-link" href="<?php echo BASE_URL . '?page=equipe'; ?>">Equipe</a>
         </li>
-        <li class="nav-item <?php echo $show; ?>">
+        <li class="nav-item d-none <?php echo $show; ?>">
           <a class="nav-link" href="<?php echo BASE_URL . '?page=config'; ?>">Configurações</a>
         </li>
         <li class="nav-item <?php echo $show; ?>">
@@ -43,7 +41,8 @@ if (in_array($user['id'], $ids)) {
           <a class="nav-link" href="<?php echo BASE_URL . '?api=login&acao=sair'; ?>">Sair</a>
         </li>
       </ul>
-      <form class="d-flex" action="<?php echo BASE_URL . '?page=pesquisa'; ?>" method="post">
+      <form class="d-flex" action="<?php echo BASE_URL . '?page=pesquisa'; ?>" method="GET">
+        <input type="text" hidden name="page" value="pesquisa">
         <input class="form-control me-2" type="search" name="f-pesquisa" placeholder="" aria-label="Search">
         <button class="btn btn-outline-success" type="submit">Pesquisar</button>
       </form>
