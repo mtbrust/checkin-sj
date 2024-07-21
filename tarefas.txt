@@ -14,4 +14,6 @@ verificar alguns erros de cadastros.
     duplicados
     presença sem cadastro
 
- realizar os testes de stress.
+
+
+ realizar os testes de stress no servidor.

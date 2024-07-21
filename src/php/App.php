@@ -4,6 +4,7 @@ class App
 {
     public static function init()
     {
+        date_default_timezone_set('America/Sao_Paulo');
 
         // configurações
         require_once('config.php');

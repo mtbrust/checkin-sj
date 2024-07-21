@@ -104,6 +104,30 @@ if (isset($_POST['acao'])) {
             $msg = 'OK.';
             break;
 
+        case 'qtdcadastrosduplicados':
+            $BdVisitantes = new BdVisitantes();
+            $ret = $BdVisitantes->qtdCadastrosDuplicados();
+            $msg = 'OK.';
+            break;
+
+        case 'ultimoscadastros':
+            $BdVisitantes = new BdVisitantes();
+            $ret = $BdVisitantes->ultimosCadastros();
+            $msg = 'OK.';
+            break;
+
+        case 'ultimaspresencas':
+            $BdVisitantes = new BdVisitantes();
+            $ret = $BdVisitantes->ultimasPresencas();
+            $msg = 'OK.';
+            break;
+
+        case 'participantespalco':
+            $BdVisitantes = new BdVisitantes();
+            $ret = $BdVisitantes->participantespalco();
+            $msg = 'OK.';
+            break;
+
         default:
             # code...
             break;

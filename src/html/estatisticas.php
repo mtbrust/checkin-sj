@@ -6,7 +6,49 @@ Seguranca::checkAdmin();
 ?>
 
 <div class="container my-4">
-    <h1>Estatísticas</h1>
+    <div class="row mt-4">
+        <div class="col-12">
+            <h1>Estatísticas</h1>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <h2>Informações Atuais</h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 mt-3">
+            <div class="box_statistica">
+                <a onclick="estatistica('ultimoscadastros', this, '#ultimoscadastros', true)">
+                    <i class="fas fa-sync-alt"></i>
+                </a>
+                <h6>Últimos 10 cadastros</h6>
+                <div id="ultimoscadastros"></div>
+            </div>
+        </div>
+        
+        <div class="col-12 mt-3">
+            <div class="box_statistica">
+                <a onclick="estatistica('ultimaspresencas', this, '#ultimaspresencas', true)">
+                    <i class="fas fa-sync-alt"></i>
+                </a>
+                <h6>Últimas 10 presenças</h6>
+                <div id="ultimaspresencas"></div>
+            </div>
+        </div>
+        
+        <div class="col-12 mt-3">
+            <div class="box_statistica">
+                <a onclick="estatistica('participantespalco', this, '#participantespalco', true)">
+                    <i class="fas fa-sync-alt"></i>
+                </a>
+                <h6>Participantes palco</h6>
+                <div id="participantespalco"></div>
+            </div>
+        </div>
+    </div>
 
     <div class="row mt-4">
         <div class="col-12">
@@ -151,6 +193,25 @@ Seguranca::checkAdmin();
             </div>
         </div>
     </div>
+
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <h2>Erros</h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class=" col-sm-3 col-6 mt-3">
+            <div class="box_statistica">
+                <a onclick="estatistica('qtdcadastrosduplicados', this)">
+                    <i class="fas fa-sync-alt"></i>
+                </a>
+                <h6>Pulseiras Duplicados</h6>
+                <h1>-</h1>
+            </div>
+        </div>
+    </div>
 </div>
 
 <style>
@@ -161,7 +222,7 @@ Seguranca::checkAdmin();
 </style>
 
 <script>
-    function estatistica(acao, e) {
+    function estatistica(acao, e, find = 'h1', lista = false) {
 
         // Preparação dos dados.
         dados = new FormData();
@@ -170,7 +231,7 @@ Seguranca::checkAdmin();
         // Chamada AJAX
         ajaxDados('<?php echo BASE_URL . '?api=estatistica'; ?>', dados, function(ret) {
             // Para testes
-            // console.log(ret);
+            console.log(ret);
 
 
             // Notificação.
@@ -185,8 +246,29 @@ Seguranca::checkAdmin();
                 timerProgressBar: true,
             });
 
-            h1 = $(e).parent().parent().find('h1');
-            $(h1).text(ret.ret);
+
+            if (lista) {
+                efind = $(find);
+                $(efind).html(montaLista(ret.ret));
+            } else {
+                efind = $(e).parent().parent().find(find);
+                $(efind).text(ret.ret);
+            }
         })
+    }
+
+    function montaLista(lista) {
+        html = '<table class="table table-striped">';
+        lista.forEach(row => {
+            html += '<tr>';
+            html += '<td><img src="' + row.foto + '" style="width: 50px;"></td>';
+            html += '<td>' + row.pulseira + '</td>';
+            html += '<td>' + row.fullName + '</td>';
+            html += '<td>' + row.dtCreate + '</td>';
+            html += '<td><a href="<?php echo BASE_URL; ?>?page=cadastro_editar&id=' + row.id + '"><i class="fas fa-user-edit"></i></a></td>';
+            html += '</tr>';
+        });
+        html += '</table>';
+        return html;
     }
 </script>

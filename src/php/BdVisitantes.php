@@ -348,6 +348,91 @@ class BdVisitantes extends DataBase
         return $r[0];
     }
 
+
+    public function qtdCadastrosDuplicados()
+    {
+        // Ajusta nome real da tabela.
+        $table = parent::fullTableName();
+        // $tableInnerMidia = parent::fullTableName('midia');
+        // $tableInnerLogin = parent::fullTableName('login');
+        // $tableInnerUsers = parent::fullTableName('users');
+
+        // Monta SQL.
+        $sql = "SELECT count(*) as qtd FROM (SELECT pulseira, count(*) as qtd FROM $table group by pulseira) tbl WHERE qtd > 1;";
+
+        // Executa o select
+        $r = parent::executeQuery($sql);
+
+        // Verifica se não teve retorno.
+        if (!$r)
+            return false;
+
+        // Retorna primeira linha.
+        return $r[0]['qtd'];
+    }
+
+    public function ultimosCadastros($qtd = 10)
+    {
+        // Ajusta nome real da tabela.
+        $table = parent::fullTableName();
+
+        // Monta SQL.
+        $sql = "SELECT tbl.*  FROM $table tbl ORDER BY tbl.dtCreate desc LIMIT $qtd;";
+
+        // Executa o select
+        $r = parent::executeQuery($sql);
+
+        // Verifica se não teve retorno.
+        if (!$r)
+            return false;
+
+        // Retorna primeira linha.
+        return $r;
+    }
+
+
+    public function ultimasPresencas($qtd = 10)
+    {
+        // Ajusta nome real da tabela.
+        $table = parent::fullTableName();
+        $tableInnerPresenca = parent::fullTableName('presencas');
+
+        // Monta SQL.
+        $sql = "SELECT tbl.id, tbl.pulseira, tbl.fullName, tbl.foto, tp.dtCreate  FROM $tableInnerPresenca tp left JOIN $table tbl ON tp.pulseira = tbl.pulseira ORDER BY tp.dtCreate desc LIMIT $qtd;";
+
+        // Executa o select
+        $r = parent::executeQuery($sql);
+
+        // Verifica se não teve retorno.
+        if (!$r)
+            return false;
+
+        // Retorna primeira linha.
+        return $r;
+    }
+
+
+    public function participantespalco($qtd = 30)
+    {
+        // Ajusta nome real da tabela.
+        $table = parent::fullTableName();
+        $tableInnerPresenca = parent::fullTableName('presencas');
+
+        // Monta SQL.
+        $sql = "SELECT tbl.id, tbl.pulseira, tbl.fullName, tbl.foto, tp.dtCreate  FROM $tableInnerPresenca tp left JOIN $table tbl ON tp.pulseira = tbl.pulseira WHERE DAY(tp.dtCreate) = DAY(CURRENT_DATE()) AND tbl.palco = 'SIM' ORDER BY tp.dtCreate ASC LIMIT $qtd;";
+
+        // Executa o select
+        $r = parent::executeQuery($sql);
+
+        // Verifica se não teve retorno.
+        if (!$r)
+            return false;
+
+        // Retorna primeira linha.
+        return $r;
+    }
+
+
     /**
      * consultaPersonalizada
      * 

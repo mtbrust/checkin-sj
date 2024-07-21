@@ -27,7 +27,7 @@
     box-shadow: 0 0 10px -6px;
 }
 
-.box_statistica a svg {
+.box_statistica > a svg {
     position: absolute;
     right: -9px;
     top: -6px;
