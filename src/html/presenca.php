@@ -1,5 +1,8 @@
 <?php
 Seguranca::check();
+
+$user = Seguranca::getSession();
+
 ?>
 
 <div class="container my-4">
@@ -48,6 +51,13 @@ Seguranca::check();
 
             <div class="col-6 mb-3 mt-3 text-end">
                 <button class="btn btn-success" onclick="executa()" id="btn_cadastrar">Presença</button>
+
+                <?php
+                if ($user['id'] == 1) {
+                    echo '<br><br><button class="btn btn-danger" onclick="testeStress()">Teste de Stress</button>';
+                }
+                ?>
+
             </div>
         </form>
     </div>
@@ -65,12 +75,19 @@ Seguranca::check();
 
 
 <script>
-    function executa() {
+    let pulseira_teste = 5000;
+
+    function executa(teste = false) {
 
         // Preparação dos dados.
         form = $('#form_presenca')[0];
         dados = new FormData(form);
         dados.append('acao', 'presenca'); // Exemplo de inclusão de valores.
+
+        if (teste) {
+            $("#f-pulseira").val(pulseira_teste++);
+            console.log(pulseira_teste);
+        }
 
         // Chamada AJAX
         ajaxDados('<?php echo BASE_URL . '?api=presenca'; ?>', dados, function(ret) {
@@ -92,8 +109,12 @@ Seguranca::check();
                     timerProgressBar: true,
                 });
 
-                $('#f-pulseira').focus();
-                $('#f-pulseira').val('');
+                if (!teste) {
+
+                    $('#f-pulseira').focus();
+                    $('#f-pulseira').val('');
+
+                }
 
                 //status
 
@@ -122,5 +143,16 @@ Seguranca::check();
                 });
             }
         })
+    }
+
+
+
+    function testeStress() {
+        qtqPulseiras = $("#f-pulseira").val();
+        $("#f-pulseira").val(pulseira_teste);
+
+        for (let i = 0; i < qtqPulseiras; i++) {
+            executa(true);
+        }
     }
 </script>

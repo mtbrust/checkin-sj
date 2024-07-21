@@ -26,6 +26,22 @@ if (isset($_POST['acao'])) {
             $msg = 'Banco resetado.';
             break;
 
+        case 'resetarvisitantes':
+            $BdVisitantes = new BdVisitantes();
+            $BdVisitantes->dropTable();
+            $BdVisitantes = new BdVisitantes();
+            $BdVisitantes->createTable();
+            $msg = 'Visitantes resetado.';
+            break;
+
+        case 'resetarpresencas':
+            $BdPresencas = new BdPresencas();
+            $BdPresencas->dropTable();
+            $BdPresencas = new BdPresencas();
+            $BdPresencas->createTable();
+            $msg = 'Presenças resetado.';
+            break;
+
         default:
             # code...
             break;

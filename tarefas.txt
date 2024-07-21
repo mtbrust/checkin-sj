@@ -1,5 +1,17 @@
 
 acrescentar campos
 
-visita?
-participar da programação?
+acrescentar nas estatísticas
+ informações de quem está entrando em tempo real.
+
+função para sortear públicos que concordaram em participar no palco.
+
+função que verifica se o visitante está apto para receber a pulseira vip.
+clica e já puxa o cadastro, fica apenas de colocar o número da nova pulseira.
+
+estatísticas
+verificar alguns erros de cadastros.
+    duplicados
+    presença sem cadastro
+
+ realizar os testes de stress.

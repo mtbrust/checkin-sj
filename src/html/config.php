@@ -10,6 +10,8 @@ Seguranca::checkAdmin();
 
     <a href="#" onclick="executa('teste')">Teste</a>
     <a href="#" onclick="executa('resetarbanco')">Resetar Banco</a>
+    <a href="#" onclick="executa('resetarvisitantes')">Resetar Visitantes</a>
+    <a href="#" onclick="executa('resetarpresencas')">Resetar Presenças</a>
 
 </div>
 

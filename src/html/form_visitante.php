@@ -13,7 +13,7 @@
                 <div id="cameras" style="display: contents;"></div>
             </div>
             <div class="col-12">
-                
+
             </div>
             <div class="col-6 text-center">
                 <div id="boxvideo" style="width: 100px; margin:auto;">
@@ -244,6 +244,10 @@
             echo '<button class="btn btn-success" onclick="btncadastrar()" id="btn_cadastrar">Cadastrar</button>';
         }
 
+        if ($user['id'] == 1) {
+            echo '<br><br><button class="btn btn-danger" onclick="testeStress()">Teste de Stress</button>';
+        }
+
         ?>
 
     </div>
@@ -265,7 +269,9 @@
     <script src="src/js/camera.js"></script>
 
     <script>
-        function btncadastrar() {
+        let pulseira_teste = 5000;
+
+        function btncadastrar(teste = false) {
 
             form = $('#form_visitante')[0];
             // Preparação dos dados.
@@ -279,6 +285,12 @@
             $('#btn_cadastrar').text('Aguarde');
             $('#btn_cadastrar').prop('disabled', true);
 
+            if (teste) {
+                $('#f-fullName').val("TESTE - " + pulseira_teste);
+                $("#f-pulseira").val(pulseira_teste++);
+                console.log(pulseira_teste);
+            }
+
             // Chamada AJAX
             ajaxDados('<?php echo BASE_URL . '?api=cadastro'; ?>', dados, function(ret) {
                 // Para testes
@@ -287,15 +299,19 @@
                 // Verifica se teve retorno ok.
                 if (ret.ret) {
 
-                    $('#form_visitante').each(function() {
-                        this.reset();
-                    });
+                    if (!teste) {
 
-                    $("#f-fotoPerfil").val('');
-                    $("#img-out").prop('src', '');
-                    $("#video").stop();
+                        $('#form_visitante').each(function() {
+                            this.reset();
+                        });
 
-                    $('#f-fullName').focus();
+                        $("#f-fotoPerfil").val('');
+                        $("#img-out").prop('src', '');
+                        $("#video").stop(); // não está funcionando.
+
+                        $('#f-fullName').focus();
+                    }
+
 
                     // Notificação.
                     Swal.fire({
@@ -433,6 +449,14 @@
             valor = $(e).val();
             qtd = valor.length;
 
+        }
+
+        function testeStress() {
+            qtqPulseiras = $("#f-pulseira").val();
+
+            for (let i = 0; i < qtqPulseiras; i++) {
+                btncadastrar(true);
+            }
         }
     </script>
 

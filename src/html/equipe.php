@@ -28,20 +28,23 @@ foreach ($users as $key => $user) {
     </div>
 
     <form action="<?php echo BASE_URL . '?api=equipe'; ?>" class="row" method="post">
-        <div class="col">
+        <div class="col-sm-6">
 
             <div class="mb-3">
                 <label for="f-fullName" class="form-label">Nome completo</label>
                 <input type="text" class="form-control" id="f-fullName" name="f-fullName">
             </div>
+        </div>
+        <div class="col-sm-6">
             <div class="mb-3">
                 <label for="f-telefone" class="form-label">Telefone</label>
                 <input type="text" class="form-control" id="f-telefone" name="f-telefone">
             </div>
-            <div class="mb-3">
+        </div>
+        <div class="col-12">
+            <div class="mb-3 text-end">
                 <button type="submit" class="btn btn-primary mb-3">Cadastrar</button>
             </div>
-
         </div>
     </form>
 
@@ -57,13 +60,13 @@ foreach ($users as $key => $user) {
 
 <style>
     div#user {
-    border: 2px solid #cbcbcb;
-    border-radius: 10px;
-    margin: 5px;
-    padding: 5px;
-    box-shadow: #000 0 0 10px -5px;
-    height: 100px;
-}
+        border: 2px solid #cbcbcb;
+        border-radius: 10px;
+        margin: 5px;
+        padding: 5px;
+        box-shadow: #000 0 0 10px -5px;
+        height: 100px;
+    }
 </style>
 
 <script>
@@ -93,6 +96,8 @@ foreach ($users as $key => $user) {
                     timer: 3000,
                     timerProgressBar: true,
                 });
+
+                window.location.reload(true);
 
             } else {
 

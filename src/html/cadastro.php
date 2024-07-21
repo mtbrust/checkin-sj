@@ -2,6 +2,8 @@
 
 Seguranca::check();
 
+$user = Seguranca::getSession();
+
 ?>
 
 <div class="container my-4">

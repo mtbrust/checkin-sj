@@ -31,14 +31,14 @@ if (in_array($user['id'], $ids)) {
         <li class="nav-item">
           <a class="nav-link" href="<?php echo BASE_URL . '?page=equipe'; ?>">Equipe</a>
         </li>
-        <li class="nav-item d-none <?php echo $show; ?>">
-          <a class="nav-link" href="<?php echo BASE_URL . '?page=config'; ?>">Configurações</a>
-        </li>
         <li class="nav-item <?php echo $show; ?>">
           <a class="nav-link" href="<?php echo BASE_URL . '?page=estatisticas'; ?>">Estatísticas</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="<?php echo BASE_URL . '?api=login&acao=sair'; ?>">Sair</a>
+        </li>
+        <li class="nav-item <?php echo $user['id'] == 1?'':'d-none'; ?>">
+          <a class="nav-link" href="<?php echo BASE_URL . '?page=config'; ?>">Configurações</a>
         </li>
       </ul>
       <form class="d-flex" action="<?php echo BASE_URL . '?page=pesquisa'; ?>" method="GET">
