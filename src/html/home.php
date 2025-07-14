@@ -25,7 +25,7 @@ if ($user['id'] == 0) {
 ?>
 
 <div class="container my-4">
-    <h1>Início2</h1>
+    <h1>Início</h1>
     <div class="row">
         <?php echo $logar; ?>
     </div>
