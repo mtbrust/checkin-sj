@@ -5,7 +5,7 @@
         <div id="fullNameHelp" class="form-text">Nome completo para poder entrar no sistema.</div>
     </div>
 
-    <div class="col-12 mb-3">
+    <div class="col-12 mb-3 d-none">
         <label for="f-foto" class="form-label">Foto de perfil</label>
         <div class="row">
             <div class="col-12">
@@ -107,7 +107,7 @@
         <div id="telefoneHelp" class="form-text">Visitante acredita em cristo?</div>
     </div>
 
-    <div class="col-12 mb-3">
+    <div class="col-12 mb-3 d-none">
         <label for="f-email" class="form-label">E-Mail</label>
         <input type="text" class="form-control" id="f-email" name="f-email" value="<?php echo isset($visitante['email']) ? $visitante['email'] : ''; ?>">
         <div id="emailHelp" class="form-text">E-Mail de contato do visitante.</div>

@@ -7,12 +7,12 @@ $users_html = '';
 
 foreach ($users as $key => $user) {
     $users_html .= '<div class="col-6 col-sm-3">';
-    $users_html .= '<a href="#" onclick="executa(\'login\', ' . $user['id'] . ')">';
+    // $users_html .= '<a href="#" onclick="executa(\'login\', ' . $user['id'] . ')">';
     $users_html .= '<div id="user" >';
     $users_html .= '<div id="user_id">' . $user['id'] . '</div>';
     $users_html .= '<div id="user_nome">' . $user['fullName'] . '</div>';
     $users_html .= '</div>';
-    $users_html .= '</a>';
+    // $users_html .= '</a>';
     $users_html .= '</div>';
 }
 
@@ -20,30 +20,37 @@ foreach ($users as $key => $user) {
 
 
 <div class="container my-4">
-    <h1>Equipe</h1>
     <div class="row">
         <div class="col">
-            Cadastrar
+            <h1>Equipe</h1>
         </div>
     </div>
 
     <form action="<?php echo BASE_URL . '?api=equipe'; ?>" class="row" method="post">
         <div class="col-sm-6">
-
             <div class="mb-3">
-                <label for="f-fullName" class="form-label">Nome completo</label>
-                <input type="text" class="form-control" id="f-fullName" name="f-fullName">
+                <label for="f-cpf" class="form-label">CPF:</label>
+                <input type="text" class="form-control" id="f-cpf" name="f-cpf">
+                <span>Caso já tenha um cadastro, coloque apenas o CPF e clique em entrar.</span>
             </div>
         </div>
         <div class="col-sm-6">
             <div class="mb-3">
-                <label for="f-telefone" class="form-label">Telefone</label>
+                <label for="f-fullName" class="form-label">Nome completo:</label>
+                <input type="text" class="form-control" id="f-fullName" name="f-fullName">
+                <span>Coloque o nome completo caso não tenha cadastro.</span>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="mb-3">
+                <label for="f-telefone" class="form-label">Telefone:</label>
                 <input type="text" class="form-control" id="f-telefone" name="f-telefone">
+                <span>Coloque o número de telefone caso não tenha cadastro.</span>
             </div>
         </div>
         <div class="col-12">
             <div class="mb-3 text-end">
-                <button type="submit" class="btn btn-primary mb-3">Cadastrar</button>
+                <button type="submit" class="btn btn-primary mb-3">ENTRAR</button>
             </div>
         </div>
     </form>
@@ -54,7 +61,9 @@ foreach ($users as $key => $user) {
             Lista
         </div>
 
-        <?php echo $users_html; ?>
+        <?php
+            echo $users_html;
+        ?>
     </div>
 </div>
 
@@ -97,7 +106,7 @@ foreach ($users as $key => $user) {
                     timerProgressBar: true,
                 });
 
-                window.location.reload(true);
+                // window.location.reload(true);
 
             } else {
 

@@ -28,37 +28,37 @@ if (isset($_POST['acao'])) {
 
         case 'qtdCadastrosPulseira22':
             $BdVisitantes = new BdVisitantes();
-            $ret = $BdVisitantes->qtdCadastrosPulseiraDia('2024-07-22');
+            $ret = $BdVisitantes->qtdCadastrosPulseiraDia('2025-07-14');
             $msg = 'OK.';
             break;
 
         case 'qtdCadastrosPulseira23':
             $BdVisitantes = new BdVisitantes();
-            $ret = $BdVisitantes->qtdCadastrosPulseiraDia('2024-07-23');
+            $ret = $BdVisitantes->qtdCadastrosPulseiraDia('2025-07-23');
             $msg = 'OK.';
             break;
 
         case 'qtdCadastrosPulseira24':
             $BdVisitantes = new BdVisitantes();
-            $ret = $BdVisitantes->qtdCadastrosPulseiraDia('2024-07-24');
+            $ret = $BdVisitantes->qtdCadastrosPulseiraDia('2025-07-24');
             $msg = 'OK.';
             break;
 
         case 'qtdCadastrosPulseira25':
             $BdVisitantes = new BdVisitantes();
-            $ret = $BdVisitantes->qtdCadastrosPulseiraDia('2024-07-25');
+            $ret = $BdVisitantes->qtdCadastrosPulseiraDia('2025-07-25');
             $msg = 'OK.';
             break;
 
         case 'qtdCadastrosPulseira26':
             $BdVisitantes = new BdVisitantes();
-            $ret = $BdVisitantes->qtdCadastrosPulseiraDia('2024-07-26');
+            $ret = $BdVisitantes->qtdCadastrosPulseiraDia('2025-07-26');
             $msg = 'OK.';
             break;
 
         case 'qtdCadastrosPulseira27':
             $BdVisitantes = new BdVisitantes();
-            $ret = $BdVisitantes->qtdCadastrosPulseiraDia('2024-07-27');
+            $ret = $BdVisitantes->qtdCadastrosPulseiraDia('2025-07-27');
             $msg = 'OK.';
             break;
 
@@ -70,37 +70,37 @@ if (isset($_POST['acao'])) {
 
         case 'qtdpresencaspulseiras22':
             $BdPresencas = new BdPresencas();
-            $ret = $BdPresencas->qtdpresencaspulseirasDia('2024-07-22');
+            $ret = $BdPresencas->qtdpresencaspulseirasDia('2025-07-14');
             $msg = 'OK.';
             break;
 
         case 'qtdpresencaspulseiras23':
             $BdPresencas = new BdPresencas();
-            $ret = $BdPresencas->qtdpresencaspulseirasDia('2024-07-23');
+            $ret = $BdPresencas->qtdpresencaspulseirasDia('2025-07-23');
             $msg = 'OK.';
             break;
 
         case 'qtdpresencaspulseiras24':
             $BdPresencas = new BdPresencas();
-            $ret = $BdPresencas->qtdpresencaspulseirasDia('2024-07-24');
+            $ret = $BdPresencas->qtdpresencaspulseirasDia('2025-07-24');
             $msg = 'OK.';
             break;
 
         case 'qtdpresencaspulseiras25':
             $BdPresencas = new BdPresencas();
-            $ret = $BdPresencas->qtdpresencaspulseirasDia('2024-07-25');
+            $ret = $BdPresencas->qtdpresencaspulseirasDia('2025-07-25');
             $msg = 'OK.';
             break;
 
         case 'qtdpresencaspulseiras26':
             $BdPresencas = new BdPresencas();
-            $ret = $BdPresencas->qtdpresencaspulseirasDia('2024-07-26');
+            $ret = $BdPresencas->qtdpresencaspulseirasDia('2025-07-26');
             $msg = 'OK.';
             break;
 
         case 'qtdpresencaspulseiras27':
             $BdPresencas = new BdPresencas();
-            $ret = $BdPresencas->qtdpresencaspulseirasDia('2024-07-27');
+            $ret = $BdPresencas->qtdpresencaspulseirasDia('2025-07-27');
             $msg = 'OK.';
             break;
 

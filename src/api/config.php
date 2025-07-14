@@ -42,6 +42,13 @@ if (isset($_POST['acao'])) {
             $msg = 'Presenças resetado.';
             break;
 
+        case 'resetarlogins':
+            $bdLogins = new BdLogins();
+            $bdLogins->dropTable();
+            $bdLogins->createTable();
+            $msg = 'Logins resetados.';
+            break;
+
         default:
             # code...
             break;

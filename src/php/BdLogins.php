@@ -265,6 +265,26 @@ class BdLogins extends DataBase
     }
 
 
+    public function selectByCpf($cpf)
+    {
+        // Ajusta nome real da tabela.
+        $table = parent::fullTableName();
+
+        // Monta SQL.
+        $sql = "SELECT * FROM $table WHERE cpf = '$cpf' LIMIT 1;";
+
+        // Executa o select
+        $r = parent::executeQuery($sql);
+
+        // Verifica se não teve retorno.
+        if (!$r)
+            return false;
+
+        // Retorna primeira linha.
+        return $r[0];
+    }
+
+
     /**
      * consultaPersonalizada
      * 
