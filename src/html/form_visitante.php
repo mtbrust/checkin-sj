@@ -112,6 +112,8 @@
         <input type="text" class="form-control" id="f-email" name="f-email" value="<?php echo isset($visitante['email']) ? $visitante['email'] : ''; ?>">
         <div id="emailHelp" class="form-text">E-Mail de contato do visitante.</div>
     </div>
+
+    <div class="col12"></div>
     <div class="col-6 mb-3">
         <label for="f-cidade" class="form-label">Cidade</label>
         <input type="text" class="form-control" id="f-cidade" name="f-cidade" placeholder="" style="text-transform: uppercase;" value="<?php echo isset($visitante['cidade']) ? $visitante['cidade'] : ''; ?>">

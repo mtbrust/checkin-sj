@@ -23,27 +23,28 @@ $BdVisitantes = new BdVisitantes();
 
 // Monta os campos de login.
 $fields = [
-    'tpulseira' => strtoupper($_POST['f-tpulseira']),
+    'tpulseira' => mb_strtoupper($_POST['f-tpulseira'], "UTF-8"),
     'pulseira' => $_POST['f-pulseira'],
-    'fullName' => strtoupper($_POST['f-fullName']),
-    'telefone' => isset($_POST['f-telefone']) ? strtoupper($_POST['f-telefone']) : '',
-    'sexo' => isset($_POST['f-sexo']) ? strtoupper($_POST['f-sexo']) : '',
-    'religiao' => isset($_POST['f-religiao']) ? strtoupper($_POST['f-religiao']) : '',
-    'email' => isset($_POST['f-email']) ? strtoupper($_POST['f-email']) : '',
-    'cidade' => isset($_POST['f-cidade']) ? strtoupper($_POST['f-cidade']) : '',
-    'bairro' => isset($_POST['f-bairro']) ? strtoupper($_POST['f-bairro']) : '',
-    'endereco' => isset($_POST['f-endereco']) ? strtoupper($_POST['f-endereco']) : '',
+    // 'fullName' => mb_strtoupper($_POST['f-fullName']),
+    'fullName' => mb_strtoupper($_POST['f-fullName'], "UTF-8"),
+    'telefone' => isset($_POST['f-telefone']) ? mb_strtoupper($_POST['f-telefone'], "UTF-8") : '',
+    'sexo' => isset($_POST['f-sexo']) ? mb_strtoupper($_POST['f-sexo'], "UTF-8") : '',
+    'religiao' => isset($_POST['f-religiao']) ? mb_strtoupper($_POST['f-religiao'], "UTF-8") : '',
+    'email' => isset($_POST['f-email']) ? mb_strtoupper($_POST['f-email'], "UTF-8") : '',
+    'cidade' => isset($_POST['f-cidade']) ? mb_strtoupper($_POST['f-cidade'], "UTF-8") : '',
+    'bairro' => isset($_POST['f-bairro']) ? mb_strtoupper($_POST['f-bairro'], "UTF-8") : '',
+    'endereco' => isset($_POST['f-endereco']) ? mb_strtoupper($_POST['f-endereco'], "UTF-8") : '',
 
-    'whatsapp' => isset($_POST['f-whatsapp']) ? strtoupper($_POST['f-whatsapp']) : '',
-    'info' => isset($_POST['f-info']) ? strtoupper($_POST['f-info']) : '',
-    'fe' => isset($_POST['f-fe']) ? strtoupper($_POST['f-fe']) : '',
-    'contato' => isset($_POST['f-contato']) ? strtoupper($_POST['f-contato']) : '',
-    'palco' => isset($_POST['f-palco']) ? strtoupper($_POST['f-palco']) : '',
-    'calouro' => isset($_POST['f-calouro']) ? strtoupper($_POST['f-calouro']) : '',
+    'whatsapp' => isset($_POST['f-whatsapp']) ? mb_strtoupper($_POST['f-whatsapp'], "UTF-8") : '',
+    'info' => isset($_POST['f-info']) ? mb_strtoupper($_POST['f-info'], "UTF-8") : '',
+    'fe' => isset($_POST['f-fe']) ? mb_strtoupper($_POST['f-fe'], "UTF-8") : '',
+    'contato' => isset($_POST['f-contato']) ? mb_strtoupper($_POST['f-contato'], "UTF-8") : '',
+    'palco' => isset($_POST['f-palco']) ? mb_strtoupper($_POST['f-palco'], "UTF-8") : '',
+    'calouro' => isset($_POST['f-calouro']) ? mb_strtoupper($_POST['f-calouro'], "UTF-8") : '',
 
     'nascimento' => '',
     'idStatus'  => 1,
-    'status'  => isset($_POST['f-status']) ? strtoupper($_POST['f-status']) : '1', // Cadastro
+    'status'  => isset($_POST['f-status']) ? mb_strtoupper($_POST['f-status'], "UTF-8") : '1', // Cadastro
 ];
 
 if (isset($_POST['f-nascimento-ano']) && isset($_POST['f-nascimento-mes']) && isset($_POST['f-nascimento-dia'])) {
