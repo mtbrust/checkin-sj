@@ -1,11 +1,11 @@
 <?php
 
 $user = Seguranca::getSession();
-$ids = Seguranca::getIdsAdmins();
+$cpfs = Seguranca::getCpfsAdmins();
 
 $show = 'd-none';
 
-if (in_array($user['id'], $ids)) {
+if (!isset($user['cpf']) || in_array($user['cpf'], $cpfs)) {
   $show = '';
 }
 
@@ -13,7 +13,7 @@ if (in_array($user['id'], $ids)) {
 
 <nav class="navbar navbar-expand-lg bg-light">
   <div class="container-fluid">
-    <a class="navbar-brand" href="<?php echo BASE_URL . '?page=home'; ?>">SJ 2024</a>
+    <a class="navbar-brand" href="<?php echo BASE_URL . '?page=home'; ?>">SJ 2025</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -37,7 +37,7 @@ if (in_array($user['id'], $ids)) {
         <li class="nav-item">
           <a class="nav-link" href="<?php echo BASE_URL . '?api=login&acao=sair'; ?>">Sair</a>
         </li>
-        <li class="nav-item <?php echo $user['id'] == 1?'':'d-none'; ?>">
+        <li class="nav-item <?php echo $show; ?>">
           <a class="nav-link" href="<?php echo BASE_URL . '?page=config'; ?>">Configurações</a>
         </li>
       </ul>

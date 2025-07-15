@@ -8,7 +8,7 @@ if (isset($_GET['f-pesquisa']) && $_GET['f-pesquisa'] != '') {
 }
 
 $user = Seguranca::getSession();
-$ids = Seguranca::getIdsAdmins();
+$ids = Seguranca::getCpfsAdmins();
 
 $show = 'd-none';
 

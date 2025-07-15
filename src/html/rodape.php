@@ -1,3 +1,3 @@
 <footer class="p-4 text-bg-dark">
-    <center>SEMANA JOVEM 2024</center>
+    <center>SEMANA JOVEM 2025</center>
 </footer>

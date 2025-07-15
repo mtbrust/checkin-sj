@@ -48,6 +48,10 @@ if (!$login) {
     // Insere os login.
     unset($login);
     $login['id'] = $BdLogins->insert($fields);
+} else {
+    if ($fullName) {
+        $BdLogins->update($login['id'], ['fullName'=>$fullName]);
+    }
 }
 
 $user = $BdLogins->selectById($login['id']);

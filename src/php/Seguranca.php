@@ -21,12 +21,9 @@ class Seguranca
         // Verifica se está logado.
         self::check();
 
-        // Ids de administradores.
-        $ids = self::getIdsAdmins();
-
         $adm = false;
 
-        if (in_array($_SESSION['usuario']['id'], $ids)) {
+        if (in_array($_SESSION['usuario']['cpf'], self::getCpfsAdmins())) {
             $adm = true;
         }
 
@@ -61,8 +58,8 @@ class Seguranca
         return $_SESSION['usuario'] = $user;
     }
 
-    public static function getIdsAdmins()
+    public static function getCpfsAdmins()
     {
-        return [1,2];
+        return ['10401141640'];
     }
 }
