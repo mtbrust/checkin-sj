@@ -41,30 +41,31 @@ class BdVisitantes extends DataBase
             "id" => "INT NOT NULL AUTO_INCREMENT primary key",
 
 
-            "tpulseira"   => "VARCHAR(64) NULL",     // Tipo ou cor da pulseira.
-            "pulseira"    => "INT NOT NULL",         // Número da pulseira.
-            "oldPulseira" => "INT NULL",         // Número da pulseira antiga.
-            "fullName"    => "VARCHAR(160) NULL",    // Nome Completo.
-            "telefone"    => "VARCHAR(11) NULL",     // Telefone (numero only).
-            "cpf"         => "VARCHAR(11) NULL",     // CPF.
-            "email"       => "VARCHAR(160) NULL",    // E-mail principal.
-            "nascimento"  => "DATE NULL",            // Data de Nascimento. (yyyy-mm-dd)
-            "sexo"        => "VARCHAR(1) NULL",      // F/M.
-            "foto"     => "LONGTEXT NULL",   // URL da foto.
+            "tpulseira"   => "VARCHAR(64) NULL",    // Tipo ou cor da pulseira.
+            "pulseira"    => "INT NOT NULL",        // Número da pulseira.
+            "oldPulseira" => "INT NULL",            // Número da pulseira antiga.
+            "fullName"    => "VARCHAR(160) NULL",   // Nome Completo.
+            "name"        => "VARCHAR(160) NULL",   // Primeiro Nome.
+            "telefone"    => "VARCHAR(11) NULL",    // Telefone (numero only).
+            "cpf"         => "VARCHAR(11) NULL",    // CPF.
+            "email"       => "VARCHAR(160) NULL",   // E-mail principal.
+            "nascimento"  => "DATE NULL",           // Data de Nascimento. (yyyy-mm-dd)
+            "sexo"        => "VARCHAR(1) NULL",     // F/M.
+            "foto"        => "LONGTEXT NULL",       // URL da foto.
 
-            "whatsapp"        => "VARCHAR(3) NULL DEFAULT 'NAO'",      // SIM/NAO.
-            "info"        => "VARCHAR(3) NULL DEFAULT 'NAO'",      // SIM/NAO.
-            "fe"        => "VARCHAR(3) NULL DEFAULT 'NAO'",      // SIM/NAO.
-            "contato"        => "VARCHAR(3) NULL DEFAULT 'NAO'",      // SIM/NAO.
-            "palco"        => "VARCHAR(3) NULL DEFAULT 'NAO'",      // SIM/NAO.
-            "calouro"        => "VARCHAR(3) NULL DEFAULT 'NAO'",      // SIM/NAO.
+            "whatsapp" => "VARCHAR(3) NULL DEFAULT 'NAO'",   // SIM/NAO.
+            "info"     => "VARCHAR(3) NULL DEFAULT 'NAO'",   // SIM/NAO.
+            "fe"       => "VARCHAR(3) NULL DEFAULT 'NAO'",   // SIM/NAO.
+            "contato"  => "VARCHAR(3) NULL DEFAULT 'NAO'",   // SIM/NAO.
+            "palco"    => "VARCHAR(3) NULL DEFAULT 'NAO'",   // SIM/NAO.
+            "calouro"  => "VARCHAR(3) NULL DEFAULT 'NAO'",   // SIM/NAO.
 
             "religiao" => "VARCHAR(255) NULL",        // Igreja que frequenta ou religião.
 
-            "cidade" => "VARCHAR(255) NULL",        // Endereço.
-            "bairro" => "VARCHAR(255) NULL",
+            "cidade"   => "VARCHAR(255) NULL",   // Endereço.
+            "bairro"   => "VARCHAR(255) NULL",
             "endereco" => "VARCHAR(255) NULL",
-            "status" => "INT NULL", // [1] OK, [2] Atualizar, [3] Atenção, [4] Bloqueado
+            "status"   => "INT NULL",            // [1] OK, [2] Atualizar, [3] Atenção, [4] Bloqueado
 
 
 
@@ -262,6 +263,31 @@ class BdVisitantes extends DataBase
         // Retorna primeira linha.
         return $r[0]['qtd'];
     }
+
+
+    public function visitasDiarias()
+    {
+        // Nome completo da tabela.
+        $table = parent::fullTableName();
+
+        $select = "COUNT(*) as qtd FROM (SELECT COUNT(*) as qtd FROM $table";
+        $where = "";
+        $groupBy = "";
+        $orderBy = "";
+
+        // Monta SQL.
+        $sql = "SELECT $select WHERE dtCreate >= '$dia 00:00:00' AND dtCreate <= '$dia 23:59:59' GROUP BY pulseira, tpulseira)tbl";
+
+        // Executa o select
+        $r = parent::executeQuery($sql);
+
+        // Verifica se não teve retorno.
+        if (!$r)
+            return false;
+
+        // Retorna primeira linha.
+        return $r[0]['qtd'];
+    }
     
 
     public function qtdCadastrosPulseiraDia($dia)
@@ -309,12 +335,16 @@ class BdVisitantes extends DataBase
     {
         // Ajusta nome real da tabela.
         $table = parent::fullTableName();
-        // $tableInnerMidia = parent::fullTableName('midia');
-        // $tableInnerLogin = parent::fullTableName('login');
-        // $tableInnerUsers = parent::fullTableName('users');
+
+        // Caso o termo seja texto.
+        $where = "fullName like '%$termo%' OR tpulseira = '$termo' OR endereco like '%$termo%'";
+        // Caso o termo seja número.
+        if (is_numeric($termo)){
+            $where = "telefone = '$termo' OR pulseira = '$termo' OR oldPulseira = '$termo'";
+        }
 
         // Monta SQL.
-        $sql = "SELECT * FROM $table WHERE id = '$termo' OR fullName like '%$termo%' OR telefone = '$termo' OR pulseira = '$termo' OR tpulseira = '$termo' OR endereco like '%$termo%';";
+        $sql = "SELECT * FROM $table WHERE $where;";
 
         // Executa o select
         $r = parent::executeQuery($sql);

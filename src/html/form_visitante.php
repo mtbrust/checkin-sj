@@ -2,7 +2,7 @@
     <div class="col-12 mb-3">
         <label for="f-fullName" class="form-label">Nome Completo (Obrigatório)</label>
         <input type="text" class="form-control" id="f-fullName" name="f-fullName" placeholder="" style="text-transform: uppercase;" value="<?php echo isset($visitante['fullName']) ? $visitante['fullName'] : ''; ?>">
-        <div id="fullNameHelp" class="form-text">Nome completo para poder entrar no sistema.</div>
+        <div id="fullNameHelp" class="form-text">Nome completo.</div>
     </div>
 
     <div class="col-12 mb-3 d-none">
@@ -31,10 +31,18 @@
         </div>
     </div>
 
+    <?php
+        // Caso não exista visitante, a pulseira fica checada.
+        $pulseiraBrancaChecked = !isset($visitante)?'checked':'';
+
+        // Caso tenha $visitante e a pulseira for branca fica checado.
+        $pulseiraBrancaChecked = isset($visitante['tpulseira']) && $visitante['tpulseira'] == 'BRANCA' ? 'checked' : $pulseiraBrancaChecked;
+    ?>
+
     <div class="col-12 mb-3">
         <label for="f-tpulseira" class="form-label">Tipo Pulseira (Obrigatório)</label><br>
         <div class="form-check form-check-inline tpulseira" style="border-color: #d1d1d1 !important;">
-            <input class="form-check-input" type="radio" name="f-tpulseira" id="f-branca" value="branca" required <?php echo isset($visitante['tpulseira']) && $visitante['tpulseira'] == 'BRANCA' ? 'checked' : ''; ?>>
+            <input class="form-check-input" type="radio" name="f-tpulseira" id="f-branca" value="branca" required <?php echo $pulseiraBrancaChecked ?>>
             <label class="form-check-label" for="f-branca"><i class="fas fa-square text-light"></i>Branca</label>
         </div>
         <div class="form-check form-check-inline tpulseira" style="border-color: #FFEB3B !important;">
@@ -51,18 +59,23 @@
         </div>
         <div id="tpulseiraHelp" class="form-text">Cor da pulseira.</div>
     </div>
-    <div class="col-5 mb-3">
+    <div class="col-6 col-sm-4 mb-3">
         <label for="f-pulseira" class="form-label">Pulseira (Obrigatório)</label>
         <input type="number" class="form-control" id="f-pulseira" name="f-pulseira" placeholder="" value="<?php echo isset($visitante['pulseira']) ? $visitante['pulseira'] : ''; ?>">
         <div id="pulseiraHelp" class="form-text">Número da pulseira do visitante.</div>
     </div>
-    <div class="col-7 mb-3">
+    <div class="col-6 col-sm-4 mb-3">
+        <label for="f-oldPulseira" class="form-label">Pulseira Antiga</label>
+        <input type="number" class="form-control" id="f-oldPulseira" name="f-oldPulseira" placeholder="" value="<?php echo isset($visitante['oldPulseira']) ? $visitante['oldPulseira'] : ''; ?>">
+        <div id="oldPulseiraHelp" class="form-text">Número da pulseira perdida.</div>
+    </div>
+    <div class="col-12 col-sm-4 mb-3">
         <label for="f-telefone" class="form-label">Telefone</label>
         <input type="number" class="form-control" id="f-telefone" name="f-telefone" placeholder="" value="<?php echo isset($visitante['telefone']) ? $visitante['telefone'] : ''; ?>">
-        <div id="telefoneHelp" class="form-text">Número de telefone do visitante ou responsável com ddd.</div>
+        <div id="telefoneHelp" class="form-text">DDD + 9 + Número.</div>
     </div>
 
-    <div class="col-6 col-sm-3 mb-3">
+    <div class="col-6 col-sm-3 mb-3 d-none">
         <div class="form-check">
             <input class="form-check-input" type="checkbox" value="SIM" id="f-whatsapp" name="f-whatsapp" <?php echo isset($visitante['whatsapp']) && $visitante['whatsapp'] == 'SIM' ? 'checked' : ''; ?>>
             <label class="form-check-label" for="f-whatsapp">
@@ -72,7 +85,7 @@
         <div id="telefoneHelp" class="form-text">Número é whatsapp?</div>
     </div>
 
-    <div class="col-6 col-sm-3 mb-3">
+    <div class="col-6 col-sm-3 mb-3 d-none">
         <div class="form-check">
             <input class="form-check-input" type="checkbox" value="SIM" id="f-info" name="f-info" <?php echo isset($visitante['info']) && $visitante['info'] == 'SIM' ? 'checked' : ''; ?>>
             <label class="form-check-label" for="f-info">
@@ -81,7 +94,7 @@
         </div>
         <div id="telefoneHelp" class="form-text">Podemos enviar informações?</div>
     </div>
-    <div class="col-12 mb-3">
+    <div class="col-6 mb-3">
         <div class="form-check form-check-inline">
             <input class="form-check-input" type="radio" name="f-sexo" id="f-m" value="m" <?php echo isset($visitante['sexo']) && $visitante['sexo'] == 'M' ? 'checked' : ''; ?>>
             <label class="form-check-label" for="f-m">Masculino</label>
@@ -97,7 +110,7 @@
         <div id="religiaoHelp" class="form-text">Igreja ou religião que participa.</div>
     </div>
 
-    <div class="col-6 col-sm-3 mb-3">
+    <div class="col-6 col-sm-3 mb-3 d-none">
         <div class="form-check">
             <input class="form-check-input" type="checkbox" value="SIM" id="f-fe" name="f-fe" <?php echo isset($visitante['fe']) && $visitante['fe'] == 'SIM' ? 'checked' : ''; ?>>
             <label class="form-check-label" for="f-fe">
@@ -128,7 +141,7 @@
         <div class="form-text">Endereço com rua, número e complemento.</div>
     </div>
 
-    <div class="col-6 col-sm-3 mb-3">
+    <div class="col-6 col-sm-3 mb-3 d-none">
         <div class="form-check">
             <input class="form-check-input" type="checkbox" value="SIM" id="f-contato" name="f-contato" <?php echo isset($visitante['contato']) && $visitante['contato'] == 'SIM' ? 'checked' : ''; ?>>
             <label class="form-check-label" for="f-contato">
@@ -152,7 +165,7 @@
         <div class="form-check">
             <input class="form-check-input" type="checkbox" value="SIM" id="f-calouro" name="f-calouro" <?php echo isset($visitante['calouro']) && $visitante['calouro'] == 'SIM' ? 'checked' : ''; ?>>
             <label class="form-check-label" for="f-calouro">
-                Calouro
+                Primeira vez
             </label>
         </div>
         <div id="telefoneHelp" class="form-text">Primeira vez no evento?</div>
@@ -230,7 +243,7 @@
                 <input class="form-check-input" type="radio" name="f-status" id="f-bloqueado" value="4" required <?php echo isset($visitante['status']) && $visitante['status'] == '4' ? 'checked' : ''; ?>>
                 <label class="form-check-label" for="f-bloqueado">Bloqueado</label>
             </div>
-            <div id="statusHelp" class="form-text">Cor da pulseira.</div>
+            <div id="statusHelp" class="form-text">Status do visitante.</div>
         </div>
     <?php
     }
@@ -287,16 +300,48 @@
             $('#btn_cadastrar').text('Aguarde');
             $('#btn_cadastrar').prop('disabled', true);
 
+            // Altero os valores do formulário para teste.
             if (teste) {
                 $('#f-fullName').val("TESTE - " + pulseira_teste);
-                $("#f-pulseira").val(pulseira_teste++);
+                dados.set('f-fullName',"TESTE - " + pulseira_teste);
+                $("#f-pulseira").val(pulseira_teste);
+                dados.set('f-pulseira',pulseira_teste);
+
+                switch (random(1,4)) {
+                    case 1:
+                        dados.set('f-tpulseira','branca');
+                        break;
+                    case 2:
+                        dados.set('f-tpulseira','vermelha');
+                        break;
+                    case 3:
+                        dados.set('f-tpulseira','amarela');
+                        break;
+                    case 4:
+                        dados.set('f-tpulseira','azul');
+                        break;
+                
+                    default:
+                        break;
+                }
+
+                $("#f-telefone").val('3599709' + pulseira_teste);
+                dados.set('f-telefone','3599709' + pulseira_teste);
+                dados.set('f-sexo','m');
+                if (random(0,1)) {
+                    dados.set('f-sexo','f');
+                }
+                $("#f-nascimento-dia").val(random(1,28));
+                $("#f-nascimento-mes").val(random(1,12));
                 console.log(pulseira_teste);
+
+                pulseira_teste++;
             }
 
             // Chamada AJAX
             ajaxDados('<?php echo BASE_URL . '?api=cadastro'; ?>', dados, function(ret) {
                 // Para testes
-                console.log(ret);
+                // console.log(ret);
 
                 // Verifica se teve retorno ok.
                 if (ret.ret) {
@@ -369,7 +414,7 @@
             // Chamada AJAX
             ajaxDados('<?php echo BASE_URL . '?api=cadastro'; ?>', dados, function(ret) {
                 // Para testes
-                console.log(ret);
+                // console.log(ret);
 
                 // Verifica se teve retorno ok.
                 if (ret.ret) {
@@ -459,6 +504,12 @@
             for (let i = 0; i < qtqPulseiras; i++) {
                 btncadastrar(true);
             }
+        }
+
+        function random(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
         }
     </script>
 

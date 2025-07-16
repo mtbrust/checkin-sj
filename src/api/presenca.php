@@ -22,8 +22,6 @@ if (isset($_POST['acao'])) {
             break;
 
         case 'presenca':
-
-
             verificaObrigatorio('f-pulseira', 'Pulseira é obrigatório.');
             verificaObrigatorio('f-tpulseira', 'Cor é obrigatório.');
 
@@ -42,6 +40,8 @@ if (isset($_POST['acao'])) {
             // verifica o status do visitante.
             $BdVisitantes = new BdVisitantes();
             $status = $BdVisitantes->getStatus($_POST['f-pulseira'], $_POST['f-tpulseira']);
+
+            $msg .= $status;
 
             if (!$ret) {
                 $msg = 'Tente novamente.';

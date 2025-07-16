@@ -21,12 +21,16 @@ if (isset($_POST['id']) && $_POST['id'] != 0) {
 
 $BdVisitantes = new BdVisitantes();
 
+$nome = explode(' ', mb_strtoupper($_POST['f-fullName'], "UTF-8"))[0];
+
 // Monta os campos de login.
 $fields = [
     'tpulseira' => mb_strtoupper($_POST['f-tpulseira'], "UTF-8"),
     'pulseira' => $_POST['f-pulseira'],
+    'oldPulseira' => $_POST['f-oldPulseira'],
     // 'fullName' => mb_strtoupper($_POST['f-fullName']),
     'fullName' => mb_strtoupper($_POST['f-fullName'], "UTF-8"),
+    'name' => $nome,
     'telefone' => isset($_POST['f-telefone']) ? mb_strtoupper($_POST['f-telefone'], "UTF-8") : '',
     'sexo' => isset($_POST['f-sexo']) ? mb_strtoupper($_POST['f-sexo'], "UTF-8") : '',
     'religiao' => isset($_POST['f-religiao']) ? mb_strtoupper($_POST['f-religiao'], "UTF-8") : '',

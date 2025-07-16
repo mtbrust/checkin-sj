@@ -406,19 +406,19 @@ class BdLogins extends DataBase
         ]);
 
         // Insert modelo.
-        $r = parent::insert([
+        // $r = parent::insert([
 
-            'fullName'  => 'Niane Caixeta',
-            // Observações do registro (obrigatório).
-            'obs'           => 'Insert Automático.',
+        //     'fullName'  => 'Niane Caixeta',
+        //     // Observações do registro (obrigatório).
+        //     'obs'           => 'Insert Automático.',
 
-            // Controle padrão do registro (obrigatório).
-            'idStatus'      => 1,
-            'idLoginCreate' => 1,
-            'dtCreate'      => date("Y-m-d H:i:s"),
-            'idLoginUpdate' => 1,
-            'dtUpdate'      => date("Y-m-d H:i:s"),
-        ]);
+        //     // Controle padrão do registro (obrigatório).
+        //     'idStatus'      => 1,
+        //     'idLoginCreate' => 1,
+        //     'dtCreate'      => date("Y-m-d H:i:s"),
+        //     'idLoginUpdate' => 1,
+        //     'dtUpdate'      => date("Y-m-d H:i:s"),
+        // ]);
 
 
         // Finaliza a função.

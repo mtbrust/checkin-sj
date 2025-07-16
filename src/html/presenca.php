@@ -26,7 +26,7 @@ $user = Seguranca::getSession();
             <div class="col-12 mb-3">
                 <label for="f-tpulseira" class="form-label">Tipo Pulseira</label><br>
                 <div class="form-check form-check-inline tpulseira" style="border-color: #d1d1d1 !important;">
-                    <input class="form-check-input" type="radio" name="f-tpulseira" id="f-branca" value="branca" required>
+                    <input class="form-check-input" type="radio" name="f-tpulseira" id="f-branca" value="branca" required checked>
                     <label class="form-check-label" for="f-branca"><i class="fas fa-square text-light"></i>Branca</label>
                 </div>
                 <div class="form-check form-check-inline tpulseira" style="border-color: #FFEB3B !important;">

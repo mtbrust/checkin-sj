@@ -39,7 +39,7 @@ class Seguranca
             return $_SESSION['usuario'];
         } else {
             return [
-                'fullName' => 'ND',
+                'fullName' => 'NÃO LOGADO',
                 'id' => 0,
             ];
         }

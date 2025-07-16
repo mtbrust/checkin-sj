@@ -28,7 +28,7 @@ Seguranca::checkAdmin();
                 <div id="ultimoscadastros"></div>
             </div>
         </div>
-        
+
         <div class="col-12 mt-3">
             <div class="box_statistica">
                 <a onclick="estatistica('ultimaspresencas', this, '#ultimaspresencas', true)">
@@ -38,7 +38,7 @@ Seguranca::checkAdmin();
                 <div id="ultimaspresencas"></div>
             </div>
         </div>
-        
+
         <div class="col-12 mt-3">
             <div class="box_statistica">
                 <a onclick="estatistica('participantespalco', this, '#participantespalco', true)">
@@ -231,7 +231,7 @@ Seguranca::checkAdmin();
         // Chamada AJAX
         ajaxDados('<?php echo BASE_URL . '?api=estatistica'; ?>', dados, function(ret) {
             // Para testes
-            console.log(ret);
+            // console.log(ret);
 
 
             // Notificação.
@@ -259,12 +259,44 @@ Seguranca::checkAdmin();
 
     function montaLista(lista) {
         html = '<table class="table table-striped">';
+        html += '<tr>';
+        html += '<th>Pulseira</th>';
+        html += '<th>COR</th>';
+        html += '<th>Antiga</th>';
+        html += '<th>Nome</th>';
+        html += '<th>Sexo</th>';
+        html += '<th>Telefone</th>';
+        html += '<th>Data Cadastro</th>';
+        html += '<th>Status</th>';
+        html += '<th>Ação</th>';
+        html += '</tr>';
         lista.forEach(row => {
+            switch (row.status) {
+                case 1:
+                    status = 'Ok';
+                    break;
+                case 2:
+                    status = 'Atualizar';
+                    break;
+                case 3:
+                    status = 'Atenção';
+                    break;
+                case 4:
+                    status = 'Bloqueado';
+                    break;
+            
+                default:
+                    break;
+            }
             html += '<tr>';
-            html += '<td><img src="' + row.foto + '" style="width: 50px;"></td>';
             html += '<td>' + row.pulseira + '</td>';
+            html += '<td>' + row.tpulseira + '</td>';
+            html += '<td>' + row.oldPulseira + '</td>';
             html += '<td>' + row.fullName + '</td>';
+            html += '<td>' + row.sexo + '</td>';
+            html += '<td>' + row.telefone + '</td>';
             html += '<td>' + row.dtCreate + '</td>';
+            html += '<td>' + status + '</td>';
             html += '<td><a href="<?php echo BASE_URL; ?>?page=cadastro_editar&id=' + row.id + '"><i class="fas fa-user-edit"></i></a></td>';
             html += '</tr>';
         });
