@@ -41,7 +41,24 @@ if (isset($_POST['acao'])) {
             $BdVisitantes = new BdVisitantes();
             $status = $BdVisitantes->getStatus($_POST['f-pulseira'], $_POST['f-tpulseira']);
 
-            $msg .= $status;
+            if (isset($status['status'])) {
+                switch ($status['status']) {
+                    case 1:
+                        $statusName = 'Ok';
+                        break;
+                    case 2:
+                        $statusName = 'Atualizar';
+                        break;
+                    case 3:
+                        $statusName = 'Atenção';
+                        break;
+                    case 4:
+                        $statusName = 'Bloqueado';
+                        break;
+                }
+
+                $msg = $statusName;
+            }
 
             if (!$ret) {
                 $msg = 'Tente novamente.';
@@ -67,7 +84,8 @@ $resultado = [
 echo json_encode($resultado);
 
 
-function verificaObrigatorio($campo, $msg) {
+function verificaObrigatorio($campo, $msg)
+{
     if (!isset($_POST[$campo]) || empty($_POST[$campo])) {
         $resultado = [
             'ret' => false,

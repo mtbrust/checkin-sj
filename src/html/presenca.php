@@ -86,21 +86,55 @@ $user = Seguranca::getSession();
 
         if (teste) {
             $("#f-pulseira").val(pulseira_teste++);
-            console.log(pulseira_teste);
+
+            switch (random(1, 4)) {
+                case 1:
+                    dados.set('f-tpulseira', 'branca');
+                    break;
+                case 2:
+                    dados.set('f-tpulseira', 'vermelha');
+                    break;
+                case 3:
+                    dados.set('f-tpulseira', 'amarela');
+                    break;
+                case 4:
+                    dados.set('f-tpulseira', 'azul');
+                    break;
+
+                default:
+                    break;
+            }
+
+            // console.log(pulseira_teste);
         }
 
         // Chamada AJAX
         ajaxDados('<?php echo BASE_URL . '?api=presenca'; ?>', dados, function(ret) {
             // Para testes
-            console.log(ret);
+            // console.log(ret);
 
             // Verifica se teve retorno ok.
             if (ret.ret) {
 
+                $('#status').html('');
+
+                icon = "success";
+                title = "Sucesso.";
+
+                if (ret.msg == 'Bloqueado'){
+                    icon = "danger";
+                    title = "Cuidade";
+                }
+
+                if (ret.msg == 'Atenção' || ret.msg == 'Atualizar'){
+                    icon = "warning";
+                    title = "Atenção";
+                }
+
                 // Notificação.
                 Swal.fire({
-                    icon: "success",
-                    title: "Sucesso.",
+                    icon: icon,
+                    title: title,
                     text: ret.msg,
                     toast: true,
                     position: "top-end",
@@ -119,7 +153,9 @@ $user = Seguranca::getSession();
                 //status
 
                 if (ret.status.status == 2) {
-                    $('#status').html('Visitante: ' + ret.status.fullName + '<h4><span class="badge text-bg-warning">Atualizar Cadastro!</span></h4>');
+                    link = '<a href="<?php echo BASE_URL . '?page=cadastro_editar&id='; ?>' + ret.status.id + '"><i class="fas fa-user-edit"></i></a>';
+                    console.log(link);
+                    $('#status').html(link + ' Visitante: ' + ret.status.fullName + '<h4><span class="badge text-bg-warning">Atualizar Cadastro!</span></h4>');
                 }
 
                 if (ret.status.status == 3) {
@@ -154,5 +190,11 @@ $user = Seguranca::getSession();
         for (let i = 0; i < qtqPulseiras; i++) {
             executa(true);
         }
+    }
+
+    function random(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 </script>

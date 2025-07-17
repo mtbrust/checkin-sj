@@ -222,7 +222,7 @@ class BdPresencas extends DataBase
         $table = parent::fullTableName();
 
         // Monta SQL.
-        $sql = "SELECT COUNT(*) as qtd FROM (SELECT count(*) FROM $table GROUP BY pulseira, tpulseira) tbl";
+        $sql = "SELECT COUNT(*) as qtd from ( SELECT COUNT(*) as qtd, pulseira, tpulseira, DAY(dtCreate) as dia FROM $table GROUP BY pulseira, tpulseira, DAY(dtCreate)) tbl;";
 
         // Executa o select
         $r = parent::executeQuery($sql);
@@ -296,6 +296,39 @@ class BdPresencas extends DataBase
 
         // Retorna primeira linha.
         return $r;
+    }
+
+
+    public function visitasDiarias()
+    {
+        // Nome completo da tabela.
+        $table = parent::fullTableName();
+
+        // Obtenho todos os dias que teve presença.
+        $sql = "SELECT day(dtCreate) as dia, DATE_FORMAT(dtCreate,'%Y-%m-%d') as data FROM $table where 1 group by day(dtCreate)";
+        
+        // Executa o select
+        $dias = parent::executeQuery($sql);
+
+        // Verifica se não teve retorno e finaliza.
+        if (!$dias)
+            return false;
+
+        foreach ($dias as $key => $value) {
+
+            $data = $dias[$key]['data'];
+
+            // Obtenho as pesenças do dia.
+            $select = "COUNT(*) as qtd FROM (SELECT COUNT(*) as qtd FROM $table";
+            $sql = "SELECT $select WHERE dtCreate >= '$data 00:00:00' AND dtCreate <= '$data 23:59:59' GROUP BY pulseira, tpulseira)tbl";
+
+            $presencas = parent::executeQuery($sql);
+
+            // $presencas
+            $dias[$key]['qtd'] = $presencas[0]['qtd'];
+        };
+
+        return $dias;
     }
 
 

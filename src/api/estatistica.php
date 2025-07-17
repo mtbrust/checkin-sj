@@ -26,81 +26,45 @@ if (isset($_POST['acao'])) {
             $msg = 'OK.';
             break;
 
-        case 'qtdCadastrosPulseira22':
-            $BdVisitantes = new BdVisitantes();
-            $ret = $BdVisitantes->qtdCadastrosPulseiraDia('2025-07-14');
-            $msg = 'OK.';
-            break;
-
-        case 'qtdCadastrosPulseira23':
-            $BdVisitantes = new BdVisitantes();
-            $ret = $BdVisitantes->qtdCadastrosPulseiraDia('2025-07-15');
-            $msg = 'OK.';
-            break;
-
-        case 'qtdCadastrosPulseira24':
-            $BdVisitantes = new BdVisitantes();
-            $ret = $BdVisitantes->qtdCadastrosPulseiraDia('2025-07-16');
-            $msg = 'OK.';
-            break;
-
-        case 'qtdCadastrosPulseira25':
-            $BdVisitantes = new BdVisitantes();
-            $ret = $BdVisitantes->qtdCadastrosPulseiraDia('2025-07-17');
-            $msg = 'OK.';
-            break;
-
-        case 'qtdCadastrosPulseira26':
-            $BdVisitantes = new BdVisitantes();
-            $ret = $BdVisitantes->qtdCadastrosPulseiraDia('2025-07-18');
-            $msg = 'OK.';
-            break;
-
-        case 'qtdCadastrosPulseira27':
-            $BdVisitantes = new BdVisitantes();
-            $ret = $BdVisitantes->qtdCadastrosPulseiraDia('2025-07-19');
-            $msg = 'OK.';
-            break;
-
         case 'qtdpresencaspulseiras':
             $BdPresencas = new BdPresencas();
             $ret = $BdPresencas->qtdpresencaspulseiras();
             $msg = 'OK.';
             break;
 
-        case 'qtdpresencaspulseiras22':
+        case 'visitasDiarias':
             $BdPresencas = new BdPresencas();
-            $ret = $BdPresencas->qtdpresencaspulseirasDia('2025-07-14');
+            $visitas = $BdPresencas->visitasDiarias();
+
+            $ret = '';
+            foreach ($visitas as $key => $value) {
+                $ret .= '<div class=" col-sm-3 col-6 mt-3">';
+                $ret .= '    <div class="box_statistica">';
+                $ret .= '        <h6>Presenças dia '. $value['dia'] .'</h6>';
+                $ret .= '        <span>'. $value['data'] .'</span>';
+                $ret .= '        <h1>'. $value['qtd'] .'</h1>';
+                $ret .= '    </div>';
+                $ret .= '</div>';
+            }
+
             $msg = 'OK.';
             break;
 
-        case 'qtdpresencaspulseiras23':
-            $BdPresencas = new BdPresencas();
-            $ret = $BdPresencas->qtdpresencaspulseirasDia('2025-07-15');
-            $msg = 'OK.';
-            break;
+        case 'cadastrosDiarios':
+            $bdVisitantes = new BdVisitantes();
+            $visitas = $bdVisitantes->cadastrosDiarios();
 
-        case 'qtdpresencaspulseiras24':
-            $BdPresencas = new BdPresencas();
-            $ret = $BdPresencas->qtdpresencaspulseirasDia('2025-07-16');
-            $msg = 'OK.';
-            break;
+            $ret = '';
+            foreach ($visitas as $key => $value) {
+                $ret .= '<div class=" col-sm-3 col-6 mt-3">';
+                $ret .= '    <div class="box_statistica">';
+                $ret .= '        <h6>Cadastros dia '. $value['dia'] .'</h6>';
+                $ret .= '        <span>'. $value['data'] .'</span>';
+                $ret .= '        <h1>'. $value['qtd'] .'</h1>';
+                $ret .= '    </div>';
+                $ret .= '</div>';
+            }
 
-        case 'qtdpresencaspulseiras25':
-            $BdPresencas = new BdPresencas();
-            $ret = $BdPresencas->qtdpresencaspulseirasDia('2025-07-17');
-            $msg = 'OK.';
-            break;
-
-        case 'qtdpresencaspulseiras26':
-            $BdPresencas = new BdPresencas();
-            $ret = $BdPresencas->qtdpresencaspulseirasDia('2025-07-18');
-            $msg = 'OK.';
-            break;
-
-        case 'qtdpresencaspulseiras27':
-            $BdPresencas = new BdPresencas();
-            $ret = $BdPresencas->qtdpresencaspulseirasDia('2025-07-19');
             $msg = 'OK.';
             break;
 

@@ -46,7 +46,7 @@ class BdVisitantes extends DataBase
             "oldPulseira" => "INT NULL",            // Número da pulseira antiga.
             "fullName"    => "VARCHAR(160) NULL",   // Nome Completo.
             "name"        => "VARCHAR(160) NULL",   // Primeiro Nome.
-            "telefone"    => "VARCHAR(11) NULL",    // Telefone (numero only).
+            "telefone"    => "VARCHAR(16) NULL",    // Telefone (numero only).
             "cpf"         => "VARCHAR(11) NULL",    // CPF.
             "email"       => "VARCHAR(160) NULL",   // E-mail principal.
             "nascimento"  => "DATE NULL",           // Data de Nascimento. (yyyy-mm-dd)
@@ -251,7 +251,7 @@ class BdVisitantes extends DataBase
         $table = parent::fullTableName();
 
         // Monta SQL.
-        $sql = "SELECT COUNT(*) as qtd FROM (SELECT count(*) FROM $table GROUP BY pulseira, tpulseira) tbl";
+        $sql = "SELECT COUNT(*) as qtd from ( SELECT COUNT(*) as qtd, pulseira, tpulseira, DAY(dtCreate) as dia FROM $table GROUP BY pulseira, tpulseira, DAY(dtCreate)) tbl;";
 
         // Executa o select
         $r = parent::executeQuery($sql);
@@ -264,29 +264,36 @@ class BdVisitantes extends DataBase
         return $r[0]['qtd'];
     }
 
-
-    public function visitasDiarias()
+    public function cadastrosDiarios()
     {
         // Nome completo da tabela.
         $table = parent::fullTableName();
 
-        $select = "COUNT(*) as qtd FROM (SELECT COUNT(*) as qtd FROM $table";
-        $where = "";
-        $groupBy = "";
-        $orderBy = "";
-
-        // Monta SQL.
-        $sql = "SELECT $select WHERE dtCreate >= '$dia 00:00:00' AND dtCreate <= '$dia 23:59:59' GROUP BY pulseira, tpulseira)tbl";
-
+        // Obtenho todos os dias que teve cadastro.
+        $sql = "SELECT day(dtCreate) as dia, DATE_FORMAT(dtCreate,'%Y-%m-%d') as data FROM $table where 1 group by day(dtCreate)";
+        
         // Executa o select
-        $r = parent::executeQuery($sql);
+        $dias = parent::executeQuery($sql);
 
-        // Verifica se não teve retorno.
-        if (!$r)
+        // Verifica se não teve retorno e finaliza.
+        if (!$dias)
             return false;
 
-        // Retorna primeira linha.
-        return $r[0]['qtd'];
+        foreach ($dias as $key => $value) {
+
+            $data = $dias[$key]['data'];
+
+            // Obtenho os cadastros do dia.
+            $select = "COUNT(*) as qtd FROM (SELECT COUNT(*) as qtd FROM $table";
+            $sql = "SELECT $select WHERE dtCreate >= '$data 00:00:00' AND dtCreate <= '$data 23:59:59' GROUP BY pulseira, tpulseira)tbl";
+
+            $cadastros = parent::executeQuery($sql);
+
+            // $cadastros
+            $dias[$key]['qtd'] = $cadastros[0]['qtd'];
+        };
+
+        return $dias;
     }
     
 
@@ -365,7 +372,7 @@ class BdVisitantes extends DataBase
         $tpulseira = strtoupper($tpulseira);
 
         // Monta SQL.
-        $sql = "SELECT fullName, status FROM $table WHERE pulseira = '$pulseira' AND tpulseira = '$tpulseira' AND status > 1;";
+        $sql = "SELECT id, fullName, status FROM $table WHERE pulseira = '$pulseira' AND tpulseira = '$tpulseira' AND status > 1;";
 
         // Executa o select
         $r = parent::executeQuery($sql);
@@ -428,7 +435,7 @@ class BdVisitantes extends DataBase
         $tableInnerPresenca = parent::fullTableName('presencas');
 
         // Monta SQL.
-        $sql = "SELECT tbl.id, tbl.pulseira, tbl.fullName, tbl.foto, tp.dtCreate  FROM $tableInnerPresenca tp left JOIN $table tbl ON tp.pulseira = tbl.pulseira ORDER BY tp.dtCreate desc LIMIT $qtd;";
+        $sql = "SELECT tbl.id, tbl.pulseira, tbl.tpulseira, tbl.status, tbl.fullName, tbl.foto, tp.dtCreate  FROM $tableInnerPresenca tp left JOIN $table tbl ON tp.pulseira = tbl.pulseira ORDER BY tp.dtCreate desc LIMIT $qtd;";
 
         // Executa o select
         $r = parent::executeQuery($sql);
@@ -442,14 +449,14 @@ class BdVisitantes extends DataBase
     }
 
 
-    public function participantespalco($qtd = 30)
+    public function participantespalco($qtd = 300)
     {
         // Ajusta nome real da tabela.
         $table = parent::fullTableName();
         $tableInnerPresenca = parent::fullTableName('presencas');
 
         // Monta SQL.
-        $sql = "SELECT tbl.id, tbl.pulseira, tbl.fullName, tbl.foto, tp.dtCreate  FROM $tableInnerPresenca tp left JOIN $table tbl ON tp.pulseira = tbl.pulseira WHERE DAY(tp.dtCreate) = DAY(CURRENT_DATE()) AND tbl.palco = 'SIM' ORDER BY tp.dtCreate ASC LIMIT $qtd;";
+        $sql = "SELECT tbl.id, tbl.pulseira, tbl.tpulseira, tbl.status, tbl.fullName, tbl.sexo, tbl.telefone, tbl.nascimento, tbl.foto, tp.dtCreate  FROM $tableInnerPresenca tp left JOIN $table tbl ON tp.pulseira = tbl.pulseira WHERE DAY(tp.dtCreate) = DAY(CURRENT_DATE()) AND tbl.palco = 'SIM' GROUP BY id ORDER BY tp.dtCreate ASC LIMIT $qtd;";
 
         // Executa o select
         $r = parent::executeQuery($sql);

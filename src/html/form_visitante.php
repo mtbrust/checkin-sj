@@ -32,11 +32,11 @@
     </div>
 
     <?php
-        // Caso não exista visitante, a pulseira fica checada.
-        $pulseiraBrancaChecked = !isset($visitante)?'checked':'';
+    // Caso não exista visitante, a pulseira fica checada.
+    $pulseiraBrancaChecked = !isset($visitante) ? 'checked' : '';
 
-        // Caso tenha $visitante e a pulseira for branca fica checado.
-        $pulseiraBrancaChecked = isset($visitante['tpulseira']) && $visitante['tpulseira'] == 'BRANCA' ? 'checked' : $pulseiraBrancaChecked;
+    // Caso tenha $visitante e a pulseira for branca fica checado.
+    $pulseiraBrancaChecked = isset($visitante['tpulseira']) && $visitante['tpulseira'] == 'BRANCA' ? 'checked' : $pulseiraBrancaChecked;
     ?>
 
     <div class="col-12 mb-3">
@@ -303,36 +303,36 @@
             // Altero os valores do formulário para teste.
             if (teste) {
                 $('#f-fullName').val("TESTE - " + pulseira_teste);
-                dados.set('f-fullName',"TESTE - " + pulseira_teste);
+                dados.set('f-fullName', "TESTE - " + pulseira_teste);
                 $("#f-pulseira").val(pulseira_teste);
-                dados.set('f-pulseira',pulseira_teste);
+                dados.set('f-pulseira', pulseira_teste);
 
-                switch (random(1,4)) {
+                switch (random(1, 4)) {
                     case 1:
-                        dados.set('f-tpulseira','branca');
+                        dados.set('f-tpulseira', 'branca');
                         break;
                     case 2:
-                        dados.set('f-tpulseira','vermelha');
+                        dados.set('f-tpulseira', 'vermelha');
                         break;
                     case 3:
-                        dados.set('f-tpulseira','amarela');
+                        dados.set('f-tpulseira', 'amarela');
                         break;
                     case 4:
-                        dados.set('f-tpulseira','azul');
+                        dados.set('f-tpulseira', 'azul');
                         break;
-                
+
                     default:
                         break;
                 }
 
                 $("#f-telefone").val('3599709' + pulseira_teste);
-                dados.set('f-telefone','3599709' + pulseira_teste);
-                dados.set('f-sexo','m');
-                if (random(0,1)) {
-                    dados.set('f-sexo','f');
+                dados.set('f-telefone', '3599709' + pulseira_teste);
+                dados.set('f-sexo', 'm');
+                if (random(0, 1)) {
+                    dados.set('f-sexo', 'f');
                 }
-                $("#f-nascimento-dia").val(random(1,28));
-                $("#f-nascimento-mes").val(random(1,12));
+                $("#f-nascimento-dia").val(random(1, 28));
+                $("#f-nascimento-mes").val(random(1, 12));
                 console.log(pulseira_teste);
 
                 pulseira_teste++;
@@ -507,9 +507,9 @@
         }
 
         function random(min, max) {
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min + 1)) + min;
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return Math.floor(Math.random() * (max - min + 1)) + min;
         }
     </script>
 

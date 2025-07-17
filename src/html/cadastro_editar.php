@@ -1,7 +1,7 @@
 <?php
 
 // Verifica se usuário está logado.
-Seguranca::checkAdmin();
+Seguranca::check();
 
 $BdVisitantes = new BdVisitantes();
 $visitante = $BdVisitantes->selectById($_GET['id']);
