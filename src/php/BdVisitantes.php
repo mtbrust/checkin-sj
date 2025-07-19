@@ -349,13 +349,13 @@ class BdVisitantes extends DataBase
         $inner = '';
         $group = '';
         $order = '';
-        
+
         // Caso o termo seja número.
         if (is_numeric($termo)){
             $where = "vi.telefone = '$termo' OR vi.pulseira = '$termo' OR vi.oldPulseira = '$termo'";
 
             $select = "GROUP_CONCAT(DATE(p.dtCreate) SEPARATOR ',') as presencas, vi.*";
-            $inner = "inner join sj_presencas p on vi.pulseira = p.pulseira";
+            $inner = "left join sj_presencas p on vi.pulseira = p.pulseira";
             $group = "GROUP by vi.pulseira";
             $order = "ORDER by p.dtcreate";
         }
