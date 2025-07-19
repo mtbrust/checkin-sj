@@ -57,6 +57,12 @@ if (in_array($user['id'], $ids)) {
                         $bgStatus = 'bg-danger bg-opacity-25';
                         break;
                 }
+
+                $presencas = array_unique(explode(',', $value['presencas']));
+                sort($presencas);
+
+                $value['presencasHtml'] = '<i class="fas fa-user-check"></i>';
+                $value['presencasHtml'] .= implode('<br><i class="fas fa-user-check"></i>', $presencas);
         ?>
                 <div class=" col-sm-4 col-12 mt-3">
                     <div class="box_statistica shadow-sm <?php echo $bgStatus; ?>">
@@ -93,6 +99,11 @@ if (in_array($user['id'], $ids)) {
                                     <br>
                                     Status: <?php echo $status; ?>
                                 </small>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                    <?php echo $value['presencasHtml']; ?>
                             </div>
                         </div>
                     </div>

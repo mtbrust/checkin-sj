@@ -344,14 +344,24 @@ class BdVisitantes extends DataBase
         $table = parent::fullTableName();
 
         // Caso o termo seja texto.
-        $where = "fullName like '%$termo%' OR tpulseira = '$termo' OR endereco like '%$termo%'";
+        $select = "'' as presencas, vi.*";
+        $where = "vi.fullName like '%$termo%' OR vi.tpulseira = '$termo' OR vi.endereco like '%$termo%'";
+        $inner = '';
+        $group = '';
+        $order = '';
+        
         // Caso o termo seja número.
         if (is_numeric($termo)){
-            $where = "telefone = '$termo' OR pulseira = '$termo' OR oldPulseira = '$termo'";
+            $where = "vi.telefone = '$termo' OR vi.pulseira = '$termo' OR vi.oldPulseira = '$termo'";
+
+            $select = "GROUP_CONCAT(DATE(p.dtCreate) SEPARATOR ',') as presencas, vi.*";
+            $inner = "inner join sj_presencas p on vi.pulseira = p.pulseira";
+            $group = "GROUP by vi.pulseira";
+            $order = "ORDER by p.dtcreate";
         }
 
         // Monta SQL.
-        $sql = "SELECT * FROM $table WHERE $where;";
+        $sql = "SELECT $select FROM $table vi $inner WHERE $where $group $order;";
 
         // Executa o select
         $r = parent::executeQuery($sql);
