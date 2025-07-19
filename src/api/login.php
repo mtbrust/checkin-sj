@@ -33,7 +33,7 @@ if (isset($_POST['acao'])) {
 
         case 'sair':
             $dados = Seguranca::getSession();
-            $dados = Seguranca::clearSession();
+            Seguranca::clearSession();
             $msg = 'Usuário deslogado: [' . $dados['id'] . '] ' . $dados['fullName'];
             break;
 
