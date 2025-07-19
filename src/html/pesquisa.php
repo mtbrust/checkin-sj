@@ -28,7 +28,7 @@ if (in_array($user['id'], $ids)) {
                 <br>
                 Os Tipos de Pulseiras são: branca, vermelha, amarela, azul.
                 <br>
-                Caso a pesquisa seja um número, será procurado nos campos de pulseira, pulseira antiga e telefone.
+                Caso a pesquisa seja um número, será procurado nos campos de pulseira, pulseira antiga e telefone. Será exibido as presenças.
             </p>
         </div>
     </div>
@@ -58,11 +58,16 @@ if (in_array($user['id'], $ids)) {
                         break;
                 }
 
-                $presencas = array_unique(explode(',', $value['presencas']));
-                sort($presencas);
-
-                $value['presencasHtml'] = '<i class="fas fa-user-check"></i>';
-                $value['presencasHtml'] .= implode('<br><i class="fas fa-user-check"></i>', $presencas);
+                if ($value['presencas'] == 'texto')
+                {
+                    $value['presencasHtml'] = 'Para exibir presenças, tem que pesquisar por número.';
+                } else {
+                    $presencas = array_unique(explode(',', $value['presencas']));
+                    sort($presencas);
+    
+                    $value['presencasHtml'] = '<b>Presenças:</b><br><i class="fas fa-user-check"></i>';
+                    $value['presencasHtml'] .= implode('<br><i class="fas fa-user-check"></i>', $presencas);
+                }
         ?>
                 <div class=" col-sm-4 col-12 mt-3">
                     <div class="box_statistica shadow-sm <?php echo $bgStatus; ?>">
@@ -103,7 +108,10 @@ if (in_array($user['id'], $ids)) {
                         </div>
                         <div class="row">
                             <div class="col">
-                                    <?php echo $value['presencasHtml']; ?>
+                                    
+                                    <?php 
+                                    echo $value['presencasHtml']; 
+                                    ?>
                             </div>
                         </div>
                     </div>

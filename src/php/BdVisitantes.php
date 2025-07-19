@@ -344,7 +344,7 @@ class BdVisitantes extends DataBase
         $table = parent::fullTableName();
 
         // Caso o termo seja texto.
-        $select = "'' as presencas, vi.*";
+        $select = "'texto' as presencas, vi.*";
         $where = "vi.fullName like '%$termo%' OR vi.tpulseira = '$termo' OR vi.endereco like '%$termo%'";
         $inner = '';
         $group = '';
