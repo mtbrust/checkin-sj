@@ -3,16 +3,19 @@
 // Verifica se usuário está logado.
 Seguranca::checkAdmin();
 
+
 ?>
 
 <div class="container my-4">
     <h1>Config</h1>
 
+    <?php if (isset($_GET['config'])){ ?>
     <a href="#" onclick="executa('teste')">Teste</a>
     <a href="#" onclick="executa('resetarbanco')">Resetar Banco</a>
     <a href="#" onclick="executa('resetarvisitantes')">Resetar Visitantes</a>
     <a href="#" onclick="executa('resetarpresencas')">Resetar Presenças</a>
     <a href="#" onclick="executa('resetarlogins')">Resetar logins</a>
+    <?php } ?>
 
 </div>
 

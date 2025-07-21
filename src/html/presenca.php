@@ -150,7 +150,7 @@ $user = Seguranca::getSession();
 
                 }
 
-                vezes = 'Veio [' + parseInt(ret.status.qtdPresenca) + '] Presenças.';
+                vezes = '[' + parseInt(ret.status.qtdPresenca) + '] Presenças.';
                 $('#status').html('Visitante: [ ' + ret.dados.pulseira + ' ]<h4><span class="badge text-bg-warning">Não cadastrado!</span></h4>' + vezes);
 
                 //status

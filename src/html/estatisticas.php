@@ -372,7 +372,11 @@ Seguranca::checkAdmin();
             html += '<td>' + row.fullName + '</td>';
             html += '<td>' + row.dtCreate + '</td>';
             html += '<td>' + status + '</td>';
-            html += '<td><a href="<?php echo BASE_URL; ?>?page=cadastro_editar&id=' + row.id + '"><i class="fas fa-user-edit"></i></a></td>';
+            if (row.id == null) {
+                html += '<td><a href="<?php echo BASE_URL; ?>?page=cadastro&pulseira=' + row.pulseira + '"><i class="fas fa-user-plus text-success"></i></a></td>';
+            } else {
+                html += '<td><a href="<?php echo BASE_URL; ?>?page=cadastro_editar&id=' + row.id + '"><i class="fas fa-user-edit text-warning"></i></a></td>';
+            }
             html += '</tr>';
         });
         html += '</table>';

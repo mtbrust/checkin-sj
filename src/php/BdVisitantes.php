@@ -457,7 +457,7 @@ class BdVisitantes extends DataBase
         $tableInnerPresenca = parent::fullTableName('presencas');
 
         // Monta SQL.
-        $sql = "SELECT tbl.id, tbl.pulseira, tbl.tpulseira, tbl.status, tbl.fullName, tbl.foto, tp.dtCreate  FROM $tableInnerPresenca tp left JOIN $table tbl ON tp.pulseira = tbl.pulseira ORDER BY tp.dtCreate desc LIMIT $qtd;";
+        $sql = "SELECT tbl.id, tp.pulseira, tp.tpulseira, tbl.status, tbl.fullName, tp.dtCreate  FROM $tableInnerPresenca tp left JOIN $table tbl ON tp.pulseira = tbl.pulseira and tp.tpulseira = tbl.tpulseira ORDER BY tp.dtCreate desc LIMIT $qtd;";
 
         // Executa o select
         $r = parent::executeQuery($sql);

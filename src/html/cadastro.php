@@ -4,6 +4,10 @@ Seguranca::check();
 
 $user = Seguranca::getSession();
 
+if (isset($_GET['pulseira'])){
+    $visitante['pulseira'] = $_GET['pulseira'];
+};
+
 ?>
 
 <div class="container my-4">
