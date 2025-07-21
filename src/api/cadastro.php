@@ -60,6 +60,9 @@ if (isset($_POST['f-fotoPerfil']) && $_POST['f-fotoPerfil']) {
     $fields['foto'] = $_POST['f-fotoPerfil'];
 }
 
+// Limpa campos vazios.
+limpaCampos($fields);
+
 if ($editar) {
     $id = $BdVisitantes->update($_POST['id'], $fields);
 } else {
@@ -91,5 +94,17 @@ function verificaObrigatorio($campo, $msg)
         ];
         echo json_encode($resultado);
         exit;
+    }
+}
+
+function limpaCampos(&$fields)
+{
+    $vazios = ['','--'];
+
+    foreach ($fields as $key => $value) {
+        if (in_array($value,$vazios))
+        {
+            unset($fields[$key]);
+        }
     }
 }
