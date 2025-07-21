@@ -58,15 +58,19 @@ if (in_array($user['id'], $ids)) {
                         break;
                 }
 
-                if ($value['presencas'] == 'texto')
-                {
+                if ($value['presencas'] == 'texto') {
                     $value['presencasHtml'] = 'Para exibir presenças, tem que pesquisar por número.';
                 } else {
                     $presencas = array_unique(explode(',', $value['presencas']));
                     sort($presencas);
-    
-                    $value['presencasHtml'] = '<b>Presenças:</b><br><i class="fas fa-user-check"></i>';
-                    $value['presencasHtml'] .= implode('<br><i class="fas fa-user-check"></i>', $presencas);
+
+                    $value['presencasHtml'] = '<b>Presenças:</b>';
+                    if (isset($value['presencas'])) {
+                        $value['presencasHtml'] .= '<br><i class="fas fa-user-check"></i>';
+                        $value['presencasHtml'] .= implode('<br><i class="fas fa-user-check"></i>', $presencas);
+                    } else {
+                       $value['presencasHtml'] .= '<br>Nenhuma presença';
+                    }
                 }
         ?>
                 <div class=" col-sm-4 col-12 mt-3">
@@ -108,10 +112,10 @@ if (in_array($user['id'], $ids)) {
                         </div>
                         <div class="row">
                             <div class="col">
-                                    
-                                    <?php 
-                                    echo $value['presencasHtml']; 
-                                    ?>
+
+                                <?php
+                                echo $value['presencasHtml'];
+                                ?>
                             </div>
                         </div>
                     </div>

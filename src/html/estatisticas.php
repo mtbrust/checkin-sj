@@ -45,6 +45,7 @@ Seguranca::checkAdmin();
                     <i class="fas fa-sync-alt"></i>
                 </a>
                 <h6>Participantes palco</h6>
+                <p>Relação de visitantes que vieram hj e que optaram por participar no palco. 5 pessoas já sorteadas com destaque em verde.</p>
                 <div id="participantespalco" style="overflow-y: scroll;"></div>
             </div>
         </div>

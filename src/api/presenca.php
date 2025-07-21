@@ -41,6 +41,7 @@ if (isset($_POST['acao'])) {
             $BdVisitantes = new BdVisitantes();
             $status = $BdVisitantes->getStatus($_POST['f-pulseira'], $_POST['f-tpulseira']);
 
+
             if (isset($status['status'])) {
                 switch ($status['status']) {
                     case 1:
@@ -55,9 +56,16 @@ if (isset($_POST['acao'])) {
                     case 4:
                         $statusName = 'Bloqueado';
                         break;
+                    default:
+                        $statusName = 'Sem Cadastro';
+                        $msg = 'Sem cadastro. ' . $_POST['f-pulseira'];
+                        break;
                 }
 
                 $msg = $statusName;
+            } else {
+                $statusName = 'Sem Cadastro';
+                $msg = 'Sem cadastro. ' . $_POST['f-pulseira'];
             }
 
             if (!$ret) {

@@ -259,7 +259,7 @@
             echo '<button class="btn btn-success" onclick="btncadastrar()" id="btn_cadastrar">Cadastrar</button>';
         }
 
-        if ($user['id'] == 1) {
+        if ($user['id'] == 1 and isset($_GET['stress'])) {
             echo '<br><br><button class="btn btn-danger" onclick="testeStress()">Teste de Stress</button>';
         }
 

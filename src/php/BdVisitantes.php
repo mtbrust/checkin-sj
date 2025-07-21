@@ -378,11 +378,23 @@ class BdVisitantes extends DataBase
     {
         // Ajusta nome real da tabela.
         $table = parent::fullTableName();
+        $tablePresenca = parent::fullTableName('presencas');
 
         $tpulseira = strtoupper($tpulseira);
 
         // Monta SQL.
-        $sql = "SELECT id, fullName, status FROM $table WHERE pulseira = '$pulseira' AND tpulseira = '$tpulseira' AND status > 1;";
+        // $sql = "SELECT v.id, v.fullName, v.status, count(p.id) as qtdPresenca FROM $table v left join $tablePresenca p on v.pulseira = p.pulseira and v.tpulseira = p.tpulseira WHERE p.pulseira = '$pulseira' AND p.tpulseira = '$tpulseira' AND v.status > 1 GROUP BY DATE(p.dtCreate);";
+
+        $select = "SELECT v.id as id, v.fullName as fullName, v.pulseira as pulseira, v.status as status, DATE(p.dtCreate) as presencas"; 
+        $from = "FROM `sj_presencas` p LEFT JOIN `sj_visitantes` v on p.pulseira = v.pulseira and v.tpulseira = p.tpulseira";
+        $where = "where p.pulseira = '$pulseira' AND p.tpulseira = '$tpulseira'";
+        $group = "GROUP BY p.pulseira, DATE(p.dtCreate)";
+        $tbl1 = "$select $from $where $group";
+
+        $sql = "SELECT id, fullName, status, pulseira, count(*) as qtdPresenca from ($tbl1) tbl1 GROUP BY pulseira;";
+
+        // echo $sql;
+        // exit;
 
         // Executa o select
         $r = parent::executeQuery($sql);

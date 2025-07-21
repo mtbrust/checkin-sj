@@ -53,7 +53,7 @@ $user = Seguranca::getSession();
                 <button class="btn btn-success" onclick="executa()" id="btn_cadastrar">Presença</button>
 
                 <?php
-                if ($user['id'] == 1) {
+                if ($user['id'] == 1 and isset($_GET['stress'])) {
                     echo '<br><br><button class="btn btn-danger" onclick="testeStress()">Teste de Stress</button>';
                 }
                 ?>
@@ -111,7 +111,7 @@ $user = Seguranca::getSession();
         // Chamada AJAX
         ajaxDados('<?php echo BASE_URL . '?api=presenca'; ?>', dados, function(ret) {
             // Para testes
-            // console.log(ret);
+            console.log(ret);
 
             // Verifica se teve retorno ok.
             if (ret.ret) {
@@ -150,20 +150,32 @@ $user = Seguranca::getSession();
 
                 }
 
+                vezes = 'Veio [' + parseInt(ret.status.qtdPresenca) + '] Presenças.';
+                $('#status').html('Visitante: [ ' + ret.dados.pulseira + ' ]<h4><span class="badge text-bg-warning">Não cadastrado!</span></h4>' + vezes);
+
                 //status
+                if (ret.status.status == 1) {
+                    link = '<a href="<?php echo BASE_URL . '?page=cadastro_editar&id='; ?>' + ret.status.id + '"><i class="fas fa-user-edit"></i></a>';
+                    vezes = '[' + parseInt(ret.status.qtdPresenca) + '] Presenças.';
+                    $('#status').html(link + 'Visitante: ' + ret.status.fullName + '<h4><span class="badge text-bg-success">OK!</span></h4>' + vezes);
+                }
 
                 if (ret.status.status == 2) {
                     link = '<a href="<?php echo BASE_URL . '?page=cadastro_editar&id='; ?>' + ret.status.id + '"><i class="fas fa-user-edit"></i></a>';
-                    console.log(link);
-                    $('#status').html(link + ' Visitante: ' + ret.status.fullName + '<h4><span class="badge text-bg-warning">Atualizar Cadastro!</span></h4>');
+                    vezes = '[' + ret.status.qtdPresenca + '] Presenças.';
+                    $('#status').html(link + ' Visitante: ' + ret.status.fullName + '<h4><span class="badge text-bg-warning">Atualizar Cadastro!</span></h4>' + vezes);
                 }
 
                 if (ret.status.status == 3) {
-                    $('#status').html('Visitante: ' + ret.status.fullName + '<h4><span class="badge text-bg-warning">Atenção!</span></h4>');
+                    link = '<a href="<?php echo BASE_URL . '?page=cadastro_editar&id='; ?>' + ret.status.id + '"><i class="fas fa-user-edit"></i></a>';
+                    vezes = '[' + ret.status.qtdPresenca + '] Presenças.';
+                    $('#status').html(link + 'Visitante: ' + ret.status.fullName + '<h4><span class="badge text-bg-warning">Atenção!</span></h4>' + vezes);
                 }
 
                 if (ret.status.status == 4) {
-                    $('#status').html('Visitante: ' + ret.status.fullName + '<h4><span class="badge text-bg-danger">Bloqueado!</span></h4>');
+                    link = '<a href="<?php echo BASE_URL . '?page=cadastro_editar&id='; ?>' + ret.status.id + '"><i class="fas fa-user-edit"></i></a>';
+                    vezes = '[' + ret.status.qtdPresenca + '] Presenças';
+                    $('#status').html(link + 'Visitante: ' + ret.status.fullName + '<h4><span class="badge text-bg-danger">Bloqueado!</span></h4>' + vezes);
                 }
 
             } else {
