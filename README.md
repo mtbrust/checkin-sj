@@ -14,6 +14,9 @@ Sistema web de **controle de cadastro e presença** para o evento **Semana Jovem
 - Suporte a troca de pulseira (`oldPulseira`)
 - Captura de foto via câmera (opcional)
 - Preview da foto em popup nas listagens
+- Modo offline no cadastro com rascunho automático local
+- Fila de pendências persistente (IndexedDB com fallback localStorage)
+- Lista de pendentes com ação **Forçar cadastro** e sincronização manual/automática
 - Flags de interesse: WhatsApp, informações, fé, contato, participação no palco, calouro
 - Status do visitante: `1` OK · `2` Atualizar · `3` Atenção · `4` Bloqueado
 
@@ -173,6 +176,7 @@ Endpoints via `?api=<nome>` (retorno JSON):
 - Check-in em andamento inicia vazio ao abrir/recarregar e exibe apenas novas presenças
 - Fallback de foto no feed em tempo real para `src/midia/user.webp`
 - Padronização das consultas para considerar visitante por **pulseira + cor** em presença, últimas presenças e relatórios legados
+- Cadastro offline v2: fila persistente mesmo após atualizar a página, sincronização ao voltar conexão e botão para forçar envio por item
 
 ---
 

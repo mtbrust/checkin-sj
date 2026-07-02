@@ -246,6 +246,20 @@
             }
             ?>
         </div>
+        <div class="text-end mt-2 small text-muted" id="cadastro-sync-status"></div>
+    </div>
+
+    <div class="col-12 mb-3" id="cadastro-fila-wrap" style="display:none;">
+        <div class="card border-warning-subtle">
+            <div class="card-header py-2 d-flex justify-content-between align-items-center">
+                <strong class="small mb-0">Cadastros pendentes</strong>
+                <button type="button" class="btn btn-sm btn-outline-primary" id="cadastro-btn-sync-agora">Sincronizar agora</button>
+            </div>
+            <div class="card-body py-2">
+                <div class="small text-muted mb-2" id="cadastro-fila-resumo"></div>
+                <div id="cadastro-fila-lista" class="d-grid gap-2"></div>
+            </div>
+        </div>
     </div>
 
     <div class="modal fade" id="modal-foto-visitante" tabindex="-1" aria-labelledby="modalFotoVisitanteLabel" aria-hidden="true">
@@ -321,8 +335,453 @@
 
     <script>
         let pulseira_teste = 5000;
+        const CADASTRO_MODO_EDICAO = <?php echo (isset($visitante) && $visitante) ? 'true' : 'false'; ?>;
+        const CADASTRO_DRAFT_KEY = 'checkin.cadastro.draft.v2.<?php echo isset($user['id']) ? (int) $user['id'] : 0; ?>';
+        const CADASTRO_QUEUE_KEY = 'checkin.cadastro.queue.fallback.v2.<?php echo isset($user['id']) ? (int) $user['id'] : 0; ?>';
+        const CADASTRO_DB_NAME = 'checkin_offline_v2';
+        const CADASTRO_DB_STORE = 'cadastro_queue';
+        const CAMPOS_CHECKBOX = ['f-whatsapp', 'f-info', 'f-fe', 'f-contato', 'f-palco', 'f-calouro'];
+        let sincronizandoFila = false;
+        let timerFila = null;
+        let debounceDraft = null;
+        let cadastroDb = null;
+        let ultimoErroSync = '';
 
-        function btncadastrar(teste = false) {
+        function statusSincronizacao(txt) {
+            $('#cadastro-sync-status').text(txt || '');
+        }
+
+        function getFilaFallback() {
+            const raw = localStorage.getItem(CADASTRO_QUEUE_KEY);
+            if (!raw) return [];
+            try {
+                const lista = JSON.parse(raw);
+                return Array.isArray(lista) ? lista : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function setFilaFallback(lista) {
+            localStorage.setItem(CADASTRO_QUEUE_KEY, JSON.stringify(lista || []));
+        }
+
+        function abrirDbCadastro() {
+            if (!('indexedDB' in window)) {
+                return Promise.resolve(null);
+            }
+            if (cadastroDb) {
+                return Promise.resolve(cadastroDb);
+            }
+            return new Promise(function(resolve) {
+                const req = indexedDB.open(CADASTRO_DB_NAME, 1);
+                req.onupgradeneeded = function(event) {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains(CADASTRO_DB_STORE)) {
+                        const store = db.createObjectStore(CADASTRO_DB_STORE, { keyPath: 'id', autoIncrement: true });
+                        store.createIndex('status', 'status', { unique: false });
+                        store.createIndex('createdAt', 'createdAt', { unique: false });
+                    }
+                };
+                req.onsuccess = function(event) {
+                    cadastroDb = event.target.result;
+                    resolve(cadastroDb);
+                };
+                req.onerror = function() {
+                    resolve(null);
+                };
+            });
+        }
+
+        async function filaCount() {
+            const db = await abrirDbCadastro();
+            if (!db) return getFilaFallback().length;
+            return new Promise(function(resolve) {
+                const tx = db.transaction(CADASTRO_DB_STORE, 'readonly');
+                const store = tx.objectStore(CADASTRO_DB_STORE);
+                const req = store.count();
+                req.onsuccess = function() { resolve(req.result || 0); };
+                req.onerror = function() { resolve(0); };
+            });
+        }
+
+        async function filaListar() {
+            const db = await abrirDbCadastro();
+            if (!db) {
+                return getFilaFallback();
+            }
+            return new Promise(function(resolve) {
+                const tx = db.transaction(CADASTRO_DB_STORE, 'readonly');
+                const store = tx.objectStore(CADASTRO_DB_STORE);
+                const req = store.getAll();
+                req.onsuccess = function() {
+                    const arr = Array.isArray(req.result) ? req.result : [];
+                    arr.sort(function(a, b) {
+                        return (a.id || 0) - (b.id || 0);
+                    });
+                    resolve(arr);
+                };
+                req.onerror = function() { resolve([]); };
+            });
+        }
+
+        async function filaGetById(id) {
+            const db = await abrirDbCadastro();
+            if (!db) {
+                const fila = getFilaFallback();
+                return fila.find(function(it) { return Number(it.id) === Number(id); }) || null;
+            }
+            return new Promise(function(resolve) {
+                const tx = db.transaction(CADASTRO_DB_STORE, 'readonly');
+                const req = tx.objectStore(CADASTRO_DB_STORE).get(Number(id));
+                req.onsuccess = function() { resolve(req.result || null); };
+                req.onerror = function() { resolve(null); };
+            });
+        }
+
+        async function filaPush(payload, origem) {
+            const item = {
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                attempts: 0,
+                status: 'pending',
+                lastError: '',
+                origem: origem || 'offline',
+                payload: payload
+            };
+            const db = await abrirDbCadastro();
+            if (!db) {
+                const fila = getFilaFallback();
+                item.id = Date.now() + Math.floor(Math.random() * 1000);
+                fila.push(item);
+                setFilaFallback(fila);
+                return true;
+            }
+            return new Promise(function(resolve) {
+                const tx = db.transaction(CADASTRO_DB_STORE, 'readwrite');
+                tx.objectStore(CADASTRO_DB_STORE).add(item).onsuccess = function() { resolve(true); };
+                tx.onerror = function() { resolve(false); };
+            });
+        }
+
+        async function filaGetPrimeiro() {
+            const db = await abrirDbCadastro();
+            if (!db) {
+                const fila = getFilaFallback();
+                return fila.length ? fila[0] : null;
+            }
+            return new Promise(function(resolve) {
+                const tx = db.transaction(CADASTRO_DB_STORE, 'readonly');
+                const store = tx.objectStore(CADASTRO_DB_STORE);
+                const req = store.openCursor();
+                req.onsuccess = function(event) {
+                    const cursor = event.target.result;
+                    resolve(cursor ? cursor.value : null);
+                };
+                req.onerror = function() { resolve(null); };
+            });
+        }
+
+        async function filaAtualizar(item) {
+            const db = await abrirDbCadastro();
+            if (!db) {
+                const fila = getFilaFallback();
+                const idx = fila.findIndex(function(it) { return it.id === item.id; });
+                if (idx >= 0) {
+                    fila[idx] = item;
+                    setFilaFallback(fila);
+                }
+                return;
+            }
+            return new Promise(function(resolve) {
+                const tx = db.transaction(CADASTRO_DB_STORE, 'readwrite');
+                tx.objectStore(CADASTRO_DB_STORE).put(item).onsuccess = function() { resolve(); };
+                tx.onerror = function() { resolve(); };
+            });
+        }
+
+        async function filaRemover(id) {
+            const db = await abrirDbCadastro();
+            if (!db) {
+                const fila = getFilaFallback().filter(function(it) { return it.id !== id; });
+                setFilaFallback(fila);
+                return;
+            }
+            return new Promise(function(resolve) {
+                const tx = db.transaction(CADASTRO_DB_STORE, 'readwrite');
+                tx.objectStore(CADASTRO_DB_STORE).delete(id).onsuccess = function() { resolve(); };
+                tx.onerror = function() { resolve(); };
+            });
+        }
+
+        async function renderFilaPendentes() {
+            if (CADASTRO_MODO_EDICAO) return;
+            const lista = await filaListar();
+            const $wrap = $('#cadastro-fila-wrap');
+            const $resumo = $('#cadastro-fila-resumo');
+            const $lista = $('#cadastro-fila-lista');
+
+            if (!lista.length) {
+                $wrap.hide();
+                $lista.html('');
+                $resumo.text('');
+                return;
+            }
+
+            $wrap.show();
+            $resumo.text('Itens salvos no aparelho. Use "Forçar cadastro" para enviar cada registro pendente.');
+
+            const html = lista.map(function(item) {
+                const p = item.payload || {};
+                const nome = p['f-fullName'] || '(sem nome)';
+                const pulseira = p['f-pulseira'] || '-';
+                const cor = p['f-tpulseira'] || '-';
+                const tentativas = item.attempts || 0;
+                const erro = item.lastError ? String(item.lastError) : '';
+                const badge = erro ? '<span class="badge text-bg-danger">erro</span>' : '<span class="badge text-bg-warning">pendente</span>';
+                return (
+                    '<div class="border rounded p-2">' +
+                        '<div class="d-flex justify-content-between align-items-center gap-2">' +
+                            '<div class="small">' +
+                                '<strong>' + nome + '</strong><br>' +
+                                'Pulseira ' + pulseira + ' • ' + String(cor).toUpperCase() + ' • tentativas: ' + tentativas + ' ' + badge +
+                            '</div>' +
+                            '<div class="d-flex flex-column flex-sm-row gap-1">' +
+                                '<button type="button" class="btn btn-sm btn-primary fila-enviar" data-id="' + item.id + '">Forçar cadastro</button>' +
+                            '</div>' +
+                        '</div>' +
+                        (erro ? ('<div class="small text-danger mt-1">Erro: ' + erro + '</div>') : '') +
+                    '</div>'
+                );
+            }).join('');
+
+            $lista.html(html);
+        }
+
+        async function atualizarStatusFila() {
+            if (CADASTRO_MODO_EDICAO) return;
+            const qtd = await filaCount();
+            if (qtd <= 0) {
+                statusSincronizacao('');
+                ultimoErroSync = '';
+                await renderFilaPendentes();
+                return;
+            }
+            const textoConexao = navigator.onLine ? 'online' : 'offline';
+            const sufixo = ultimoErroSync ? (' | último erro: ' + ultimoErroSync) : '';
+            statusSincronizacao('Cadastros pendentes: ' + qtd + ' (' + textoConexao + ')' + sufixo);
+            await renderFilaPendentes();
+        }
+
+        function capturarPayloadFormulario() {
+            const payload = {};
+            const arr = $('#form_visitante').serializeArray();
+            arr.forEach(function(item) {
+                payload[item.name] = item.value;
+            });
+
+            CAMPOS_CHECKBOX.forEach(function(name) {
+                payload[name] = $('#' + name).is(':checked') ? 'SIM' : '';
+            });
+
+            payload['f-fotoPerfil'] = $('#f-fotoPerfil').val() || '';
+            return payload;
+        }
+
+        function preencherFormularioComPayload(payload) {
+            if (!payload || typeof payload !== 'object') return;
+
+            Object.keys(payload).forEach(function(name) {
+                const valor = payload[name];
+                const $el = $('[name="' + name + '"]');
+                if (!$el.length) return;
+
+                const tipo = ($el.attr('type') || '').toLowerCase();
+                if (tipo === 'radio') {
+                    $('[name="' + name + '"][value="' + valor + '"]').prop('checked', true);
+                    return;
+                }
+                if (tipo === 'checkbox') {
+                    $el.prop('checked', String(valor).toUpperCase() === 'SIM');
+                    return;
+                }
+                $el.val(valor);
+            });
+        }
+
+        function salvarRascunho() {
+            if (CADASTRO_MODO_EDICAO) return;
+            try {
+                localStorage.setItem(CADASTRO_DRAFT_KEY, JSON.stringify(capturarPayloadFormulario()));
+            } catch (e) {
+                statusSincronizacao('Memória do navegador cheia para salvar rascunho.');
+            }
+        }
+
+        function restaurarRascunho() {
+            if (CADASTRO_MODO_EDICAO) return;
+            try {
+                const raw = localStorage.getItem(CADASTRO_DRAFT_KEY);
+                if (!raw) return;
+                const payload = JSON.parse(raw);
+                preencherFormularioComPayload(payload);
+                statusSincronizacao('Rascunho recuperado do dispositivo.');
+            } catch (e) {
+                // Ignora rascunho inválido.
+            }
+        }
+
+        function limparRascunho() {
+            if (CADASTRO_MODO_EDICAO) return;
+            localStorage.removeItem(CADASTRO_DRAFT_KEY);
+        }
+
+        function limparFormularioCadastro() {
+            $('#form_visitante').each(function() {
+                this.reset();
+            });
+            $("#f-fotoPerfil").val('');
+            if (typeof visitanteFotoLimpar === 'function') {
+                visitanteFotoLimpar();
+            }
+            $('#f-fullName').focus();
+        }
+
+        function validarMinimoCadastro(payload) {
+            if (!payload['f-fullName']) return 'Nome é obrigatório.';
+            if (!payload['f-pulseira']) return 'Pulseira é obrigatório.';
+            if (!payload['f-tpulseira']) return 'Cor de Pulseira é obrigatório.';
+            return '';
+        }
+
+        function payloadParaFormData(payload) {
+            const dados = new FormData();
+            Object.keys(payload || {}).forEach(function(key) {
+                dados.append(key, payload[key]);
+            });
+            if (!dados.get('f-oldPulseira')) {
+                dados.set('f-oldPulseira', 0);
+            }
+            return dados;
+        }
+
+        async function enfileirarCadastro(payload, origem) {
+            if (CADASTRO_MODO_EDICAO) return false;
+            const ok = await filaPush(payload, origem);
+            if (!ok) {
+                statusSincronizacao('Falha ao salvar fila local.');
+                return false;
+            }
+            await atualizarStatusFila();
+            return true;
+        }
+
+        function enviarCadastroPromise(payload) {
+            return new Promise(function(resolve) {
+                const dados = payloadParaFormData(payload || {});
+                ajaxDados('<?php echo BASE_URL . '?api=cadastro'; ?>', dados, function(ret) {
+                    resolve(ret || { ret: false, msg: 'Erro na chamada AJAX.' });
+                });
+            });
+        }
+
+        async function enviarItemFilaPorId(id, notificarSucesso = true) {
+            const item = await filaGetById(id);
+            if (!item) {
+                await atualizarStatusFila();
+                return;
+            }
+            if (!navigator.onLine) {
+                notificaErro('Sem conexão para forçar envio.');
+                return;
+            }
+
+            statusSincronizacao('Forçando envio do cadastro pendente...');
+            const ret = await enviarCadastroPromise(item.payload || {});
+
+            if (ret && ret.ret) {
+                await filaRemover(item.id);
+                ultimoErroSync = '';
+                if (notificarSucesso) {
+                    notificaSucesso('Cadastro pendente enviado com sucesso.');
+                }
+            } else {
+                item.attempts = (item.attempts || 0) + 1;
+                item.updatedAt = new Date().toISOString();
+                item.lastError = (ret && ret.msg) ? ret.msg : 'Erro na chamada AJAX.';
+                item.status = (item.lastError === 'Erro na chamada AJAX.') ? 'pending' : 'error';
+                ultimoErroSync = item.lastError;
+                await filaAtualizar(item);
+                notificaErro('Falha ao forçar envio: ' + item.lastError);
+            }
+
+            await atualizarStatusFila();
+        }
+
+        async function sincronizarFilaCadastro() {
+            if (CADASTRO_MODO_EDICAO || sincronizandoFila || !navigator.onLine) return;
+            const item = await filaGetPrimeiro();
+            if (!item) {
+                await atualizarStatusFila();
+                return;
+            }
+
+            sincronizandoFila = true;
+            const total = await filaCount();
+            statusSincronizacao('Sincronizando ' + total + ' cadastro(s)...');
+
+            const ret = await enviarCadastroPromise(item.payload || {});
+            sincronizandoFila = false;
+
+            if (ret && ret.ret) {
+                ultimoErroSync = '';
+                await filaRemover(item.id);
+                notificaSucesso('Cadastro pendente sincronizado.');
+                await atualizarStatusFila();
+                const restantes = await filaCount();
+                if (restantes > 0) {
+                    setTimeout(function() {
+                        sincronizarFilaCadastro();
+                    }, 200);
+                }
+                return;
+            }
+
+            item.attempts = (item.attempts || 0) + 1;
+            item.updatedAt = new Date().toISOString();
+            item.lastError = (ret && ret.msg) ? ret.msg : 'Erro na chamada AJAX.';
+            item.status = (item.lastError === 'Erro na chamada AJAX.') ? 'pending' : 'error';
+            ultimoErroSync = item.lastError;
+            await filaAtualizar(item);
+            await atualizarStatusFila();
+        }
+
+        async function initOfflineCadastro() {
+            if (CADASTRO_MODO_EDICAO) return;
+
+            restaurarRascunho();
+            await atualizarStatusFila();
+            sincronizarFilaCadastro();
+
+            $('#form_visitante').on('input change', function() {
+                clearTimeout(debounceDraft);
+                debounceDraft = setTimeout(salvarRascunho, 250);
+            });
+
+            window.addEventListener('online', function() {
+                ultimoErroSync = '';
+                atualizarStatusFila();
+                sincronizarFilaCadastro();
+            });
+
+            window.addEventListener('offline', function() {
+                atualizarStatusFila();
+            });
+
+            timerFila = window.setInterval(sincronizarFilaCadastro, 10000);
+        }
+
+        async function btncadastrar(teste = false) {
 
             form = $('#form_visitante')[0];
             // Preparação dos dados.
@@ -365,6 +824,28 @@
                 pulseira_teste++;
             }
 
+            const payloadAtual = capturarPayloadFormulario();
+            const msgValidacao = validarMinimoCadastro(payloadAtual);
+            if (msgValidacao) {
+                $('#btn_cadastrar').text('Cadastrar');
+                $('#btn_cadastrar').prop('disabled', false);
+                notificaErro(msgValidacao);
+                return;
+            }
+
+            if (!navigator.onLine && !teste) {
+                if (await enfileirarCadastro(payloadAtual, 'offline')) {
+                    limparFormularioCadastro();
+                    limparRascunho();
+                    notificaSucesso('Sem internet. Cadastro salvo na fila para envio automático.');
+                } else {
+                    notificaErro('Sem internet e não foi possível salvar na fila local.');
+                }
+                $('#btn_cadastrar').text('Cadastrar');
+                $('#btn_cadastrar').prop('disabled', false);
+                return;
+            }
+
             // Chamada AJAX
             ajaxDados('<?php echo BASE_URL . '?api=cadastro'; ?>', dados, function(ret) {
                 // Para testes
@@ -390,11 +871,19 @@
 
                     notificaSucesso(ret.msg);
                 } else {
-
-                    // code...
-
-                    // Notificação.
-                    notificaErro(ret.msg);
+                    if (!teste && ret && ret.msg === 'Erro na chamada AJAX.') {
+                        enfileirarCadastro(payloadAtual, 'erro-conexao').then(function(ok) {
+                            if (ok) {
+                                limparFormularioCadastro();
+                                limparRascunho();
+                                notificaSucesso('Cadastro salvo na fila por falha de conexão. Será reenviado automaticamente.');
+                            } else {
+                                notificaErro('Falha de conexão e não foi possível salvar fila local.');
+                            }
+                        });
+                    } else {
+                        notificaErro(ret.msg);
+                    }
                 }
 
                 $('#btn_cadastrar').text('Cadastrar');
@@ -506,6 +995,29 @@
             max = Math.floor(max);
             return Math.floor(Math.random() * (max - min + 1)) + min;
         }
+
+        function initCadastroOfflineUi() {
+            initOfflineCadastro();
+
+            $('#cadastro-btn-sync-agora').on('click', function() {
+                sincronizarFilaCadastro();
+            });
+
+            $('#cadastro-fila-lista').on('click', '.fila-enviar', async function() {
+                const id = $(this).data('id');
+                await enviarItemFilaPorId(id, true);
+            });
+        }
+
+        function startWhenJqueryReady() {
+            if (typeof window.jQuery === 'undefined') {
+                window.setTimeout(startWhenJqueryReady, 60);
+                return;
+            }
+            window.jQuery(initCadastroOfflineUi);
+        }
+
+        startWhenJqueryReady();
     </script>
 
 </form>

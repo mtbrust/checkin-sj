@@ -121,6 +121,12 @@
     }
 
     function fotoFecharModal() {
+        const modalEl = fotoEl('modal-foto-visitante');
+        const ativo = document.activeElement;
+        if (modalEl && ativo && modalEl.contains(ativo) && typeof ativo.blur === 'function') {
+            ativo.blur();
+        }
+
         fotoPararCamera();
 
         if (fotoModal) {
