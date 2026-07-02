@@ -119,6 +119,21 @@ class RelatorioGeral
         return $out;
     }
 
+    private static function dirTempMpdf()
+    {
+        $dir = BASE_DIR . 'data/tmp/mpdf/';
+
+        if (!is_dir($dir) && !mkdir($dir, 0755, true) && !is_dir($dir)) {
+            throw new RuntimeException('Não foi possível criar o diretório temporário do PDF.');
+        }
+
+        if (!is_writable($dir)) {
+            throw new RuntimeException('Diretório temporário do PDF sem permissão de escrita: ' . $dir);
+        }
+
+        return $dir;
+    }
+
     public static function downloadPdf()
     {
         $dados = self::coletarDados();
@@ -133,6 +148,7 @@ class RelatorioGeral
             'margin_header' => 6,
             'margin_footer' => 6,
             'setAutoTopMargin' => 'pad',
+            'tempDir' => self::dirTempMpdf(),
         ]);
 
         $ev = $dados['evento'];
