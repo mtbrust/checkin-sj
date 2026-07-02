@@ -587,6 +587,24 @@ class BdVisitantes extends DataBase
         return $r[0];
     }
 
+    public function listarRelatorioCompleto()
+    {
+        $table = parent::fullTableName();
+        $tablePresenca = parent::fullTableName('presencas');
+
+        $sql = "SELECT v.*,
+            (
+                SELECT COUNT(DISTINCT DATE(p.dtCreate))
+                FROM $tablePresenca p
+                WHERE p.pulseira = v.pulseira
+                AND UPPER(p.tpulseira) = UPPER(v.tpulseira)
+            ) AS qtdDiasPresenca
+            FROM $table v
+            ORDER BY v.fullName ASC, v.pulseira ASC, v.tpulseira ASC";
+
+        return parent::executeQuery($sql) ?: [];
+    }
+
     public function estatisticasResumo()
     {
         $table = parent::fullTableName();

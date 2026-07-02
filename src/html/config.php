@@ -13,17 +13,22 @@ $httpsAtual = SiteConfig::detectHttps() ? 'HTTPS' : 'HTTP';
 <div class="container my-4">
     <h1>Config</h1>
 
-    <?php if ($mostrarManutencao): ?>
-        <p class="text-muted">Ferramentas de manutenção disponíveis apenas para o usuário principal.</p>
-        <div class="config-acoes">
-            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="executa('teste')">Teste</button>
-            <button type="button" class="btn btn-outline-primary btn-sm" onclick="executa('cargadetestes')">Carga de teste</button>
-            <button type="button" class="btn btn-outline-danger btn-sm" onclick="executa('resetarbanco')">Resetar Banco</button>
-            <button type="button" class="btn btn-outline-danger btn-sm" onclick="executa('resetarvisitantes')">Resetar Visitantes</button>
-            <button type="button" class="btn btn-outline-danger btn-sm" onclick="executa('resetarpresencas')">Resetar Presenças</button>
-            <button type="button" class="btn btn-outline-danger btn-sm" onclick="executa('resetarlogins')">Resetar logins</button>
+    <div class="config-relatorios mt-4">
+        <h2 class="h6 mb-2">Relatórios</h2>
+        <p class="text-muted small mb-2">Exportação completa com estatísticas e lista de visitantes.</p>
+        <div class="config-relatorios-acoes">
+            <button type="button" class="btn btn-primary btn-sm" onclick="downloadRelatorio('pdf')">
+                <i class="fas fa-file-pdf"></i> Relatório Geral
+            </button>
+            <button type="button" class="btn btn-success btn-sm" onclick="downloadRelatorio('csv')">
+                <i class="fas fa-file-excel"></i> Relatório excel
+            </button>
         </div>
+    </div>
 
+    <?php if ($mostrarManutencao): ?>
+
+        <p class="text-muted">Ferramentas de manutenção disponíveis apenas para o usuário principal.</p>
         <div class="config-https mt-4">
             <h2 class="h6 mb-2">Protocolo do site</h2>
             <p class="text-muted small mb-2">
@@ -38,6 +43,14 @@ $httpsAtual = SiteConfig::detectHttps() ? 'HTTPS' : 'HTTP';
             </select>
             <button type="button" class="btn btn-outline-primary btn-sm" onclick="salvarHttps()">Salvar protocolo</button>
             <p class="text-muted small mt-2 mb-0">Ao forçar HTTPS, o visitante em HTTP é redirecionado. Em ambiente local sem certificado, use Automático ou HTTP.</p>
+        </div>
+        <div class="config-acoes">
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="executa('teste')">Teste</button>
+            <button type="button" class="btn btn-outline-primary btn-sm" onclick="executa('cargadetestes')">Carga de teste</button>
+            <button type="button" class="btn btn-outline-danger btn-sm" onclick="executa('resetarbanco')">Resetar Banco</button>
+            <button type="button" class="btn btn-outline-danger btn-sm" onclick="executa('resetarvisitantes')">Resetar Visitantes</button>
+            <button type="button" class="btn btn-outline-danger btn-sm" onclick="executa('resetarpresencas')">Resetar Presenças</button>
+            <button type="button" class="btn btn-outline-danger btn-sm" onclick="executa('resetarlogins')">Resetar logins</button>
         </div>
     <?php endif; ?>
 
@@ -64,6 +77,25 @@ $httpsAtual = SiteConfig::detectHttps() ? 'HTTPS' : 'HTTP';
         border-radius: 8px;
         padding: 12px;
         background: #fff;
+    }
+
+    .config-relatorios {
+        max-width: 360px;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 12px;
+        background: #fff;
+    }
+
+    .config-relatorios-acoes {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .config-relatorios-acoes .btn {
+        width: 100%;
+        text-align: left;
     }
 </style>
 
@@ -140,6 +172,11 @@ $httpsAtual = SiteConfig::detectHttps() ? 'HTTPS' : 'HTTP';
                 }, 300);
             });
         });
+    }
+
+    function downloadRelatorio(tipo) {
+        const acao = tipo === 'csv' ? 'csv' : 'pdf';
+        window.location.href = '<?php echo BASE_URL; ?>?api=relatorio&acao=' + acao;
     }
 
     function salvarHttps() {

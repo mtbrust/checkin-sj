@@ -1,7 +1,8 @@
 # Check-In SJ
 
-Sistema web de **controle de cadastro e presença** para o evento **Semana Jovem (SJ 2025)**. Desenvolvido para uso local/em rede durante o evento, permitindo que a equipe registre visitantes, faça check-in por pulseira e acompanhe estatísticas em tempo real.
+Sistema web de **controle de cadastro e presença** para a **Semana Jovem 2026** (20 a 25 de julho). Desenvolvido para uso local/em rede durante o evento, permitindo que a equipe registre visitantes, faça check-in por pulseira e acompanhe estatísticas em tempo real.
 
+**Instituição:** Juventude GetUp  
 **Autor:** [Mateus Brust](mailto:contato@desv.com.br) — DESV
 
 ---
@@ -12,11 +13,10 @@ Sistema web de **controle de cadastro e presença** para o evento **Semana Jovem
 - Registro com nome, telefone, sexo, data de nascimento, endereço e igreja/religião
 - Identificação por **chave composta de pulseira**: número + cor (amarela ou azul)
 - Suporte a troca de pulseira (`oldPulseira`)
-- Captura de foto via câmera (opcional)
-- Preview da foto em popup nas listagens
-- Modo offline no cadastro com rascunho automático local
-- Fila de pendências persistente (IndexedDB com fallback localStorage)
-- Lista de pendentes com ação **Forçar cadastro** e sincronização manual/automática
+- Captura de foto via câmera (opcional), com compressão e preview em popup
+- **Modo offline:** rascunho automático local enquanto preenche o formulário
+- **Fila de pendências** persistente (IndexedDB, com fallback em localStorage)
+- Lista de cadastros pendentes com **Forçar cadastro** e **Sincronizar agora**
 - Flags de interesse: WhatsApp, informações, fé, contato, participação no palco, calouro
 - Status do visitante: `1` OK · `2` Atualizar · `3` Atenção · `4` Bloqueado
 
@@ -34,16 +34,20 @@ Sistema web de **controle de cadastro e presença** para o evento **Semana Jovem
 ### Pesquisa
 - Busca por texto (nome, tipo de pulseira, endereço)
 - Busca por número (pulseira, pulseira antiga, telefone)
-- Exibe histórico de presenças do visitante
+- Exibe histórico de presenças do visitante (por pulseira + cor)
 
 ### Estatísticas (somente administradores)
-- Últimos 10 cadastros e presenças
+- KPIs clicáveis com filtros (cadastros, pulseiras, status, duplicados, sem cadastro)
 - Cadastros e presenças por dia
-- Quantidade por tipo de pulseira
-- Cadastros duplicados
-- Pulseiras sem cadastro
-- Participantes do palco (visitantes presentes hoje que aceitaram ir ao palco)
-- Tela **Check-in em andamento** (`?page=checkin-andamento`) com atualização automática
+- Últimos cadastros e últimas presenças
+- Participantes do palco (presentes hoje com interesse no palco)
+- Tela **Check-in em andamento** (`?page=checkin-andamento`): feed em tempo real das novas presenças, com fallback de foto `user.webp`
+
+### Configurações e relatórios (somente administradores)
+- Ajuste de protocolo HTTP/HTTPS via `SiteConfig` (`data/site-settings.json`)
+- Ferramentas de manutenção (carga de teste, reset de tabelas) para usuário principal
+- **Relatório Geral (PDF):** download com cabeçalho do evento, estatísticas gerais e por dia (layout tipo painel), lista compacta de visitantes com status, pulseira, dias de presença, flags e link WhatsApp no telefone
+- **Relatório excel (CSV):** exportação completa dos cadastros com `qtd_dias_presenca` e URL WhatsApp
 
 ---
 
@@ -59,6 +63,7 @@ Sistema web de **controle de cadastro e presença** para o evento **Semana Jovem
 - `mbstring`
 - `json`
 - `session`
+- `gd` (opcional, útil para imagens)
 
 ---
 
@@ -76,6 +81,8 @@ cd checkin-sj
 ```bash
 composer install
 ```
+
+A dependência **mpdf/mpdf** é usada na geração do Relatório Geral em PDF.
 
 ### 3. Configurar o banco de dados
 
@@ -146,37 +153,69 @@ http://localhost/checkin-sj/
 | `?page=cadastro_editar&id=X` | Editar cadastro *(requer login)* |
 | `?page=estatisticas` | Painel de estatísticas *(somente admin)* |
 | `?page=checkin-andamento` | Feed em tempo real das novas presenças *(somente admin)* |
+| `?page=config` | Configurações, relatórios e manutenção *(somente admin)* |
 
-### API JSON
+### API
 
-Endpoints via `?api=<nome>` (retorno JSON):
+Endpoints via `?api=<nome>`:
 
-| Endpoint | Ações principais |
-|----------|------------------|
-| `?api=login` | `acao=login`, `acao=sair` |
-| `?api=equipe` | Login/cadastro por CPF (POST) |
-| `?api=cadastro` | Inserir/atualizar visitante (POST) |
-| `?api=presenca` | `acao=presenca` — registrar check-in |
-| `?api=visitante` | `acao=foto` — retornar URL de foto para popup/listagens |
-| `?api=estatistica` | Diversas ações: `ultimoscadastros`, `ultimaspresencas`, `cadastrosDiarios`, `visitasDiarias`, `participantespalco`, etc. |
+| Endpoint | Descrição |
+|----------|-----------|
+| `?api=login` | Login/sair da equipe |
+| `?api=equipe` | Cadastro por CPF (POST) |
+| `?api=cadastro` | Inserir/atualizar visitante (POST, JSON) |
+| `?api=presenca` | Registrar check-in (POST, JSON) |
+| `?api=visitante` | `acao=foto` — URL da foto para popup/listagens |
+| `?api=estatistica` | KPIs, listagens, `checkinandamento`, etc. (JSON) |
+| `?api=relatorio&acao=pdf` | Download do Relatório Geral em PDF *(admin)* |
+| `?api=relatorio&acao=csv` | Download do Relatório excel em CSV *(admin)* |
 
 ### Fluxo típico no evento
 
 1. Voluntário acessa **Equipe** e faz login com CPF
 2. Na **Presença**, informa cor e número da pulseira do visitante
-3. Se não houver cadastro, vai em **Cadastro** e completa os dados
-4. Administrador acompanha **Estatísticas**, **Check-in em andamento** e usa **Pesquisa** para localizar visitantes
+3. Se não houver cadastro, vai em **Cadastro** e completa os dados (com suporte offline se a rede cair)
+4. Administrador acompanha **Estatísticas**, **Check-in em andamento** e **Pesquisa**
+5. Ao final (ou durante), em **Config**, gera **Relatório Geral** ou **Relatório excel**
+
+### Cadastro sem internet
+
+1. Preencha o formulário normalmente (o rascunho é salvo no aparelho)
+2. Ao clicar em **Cadastrar** sem conexão, o registro entra na fila local
+3. Quando a rede voltar, use **Sincronizar agora** ou **Forçar cadastro** na lista de pendentes
+4. A fila permanece mesmo após atualizar a página (desde que o navegador não limpe os dados do site)
+
+---
+
+## Relatório Geral (PDF)
+
+Gerado em `?page=config` → **Relatório Geral**. Conteúdo:
+
+**Cabeçalho (todas as páginas)**
+- Semana Jovem 2026 — 20 a 25 de Julho
+- Tema: *Justiça quem é o juiz?* · 13º evento
+- Instagram do evento: [@semanajovemgetup](https://www.instagram.com/semanajovemgetup/)
+- Instituição: Juventude GetUp · [@juventude_getup](https://www.instagram.com/juventude_getup/)
+
+**Página 1 — estatísticas**
+- Cards de KPIs (mesmo conceito da tela Estatísticas)
+- Painéis **Cadastros por dia** e **Presenças por dia**
+
+**Páginas seguintes — visitantes**
+- Lista compacta: status, pulseira (cor), nome, telefone (link WhatsApp), dias de presença, flags (palco, 1ª vez, WhatsApp), igreja/cidade
 
 ---
 
 ## Novidades recentes
 
-- Configuração do site via `SiteConfig` com persistência em `data/site-settings.json` (modo HTTP/HTTPS e URL base)
-- Carga de testes ampliada para cenários reais (duplicados, presença sem cadastro, status variados)
-- Check-in em andamento inicia vazio ao abrir/recarregar e exibe apenas novas presenças
-- Fallback de foto no feed em tempo real para `src/midia/user.webp`
-- Padronização das consultas para considerar visitante por **pulseira + cor** em presença, últimas presenças e relatórios legados
-- Cadastro offline v2: fila persistente mesmo após atualizar a página, sincronização ao voltar conexão e botão para forçar envio por item
+- Relatório Geral em PDF (mPDF) e exportação CSV na página Config
+- Cabeçalho do PDF com dados oficiais do evento SJ 2026
+- Layout de estatísticas no PDF alinhado ao painel web (cards e mini-cards por dia)
+- Cadastro offline v2: fila IndexedDB, lista de pendentes, sincronização manual/automática
+- Check-in em andamento: feed vazio ao abrir, exibe só novas presenças; foto padrão `user.webp`
+- Chave composta **pulseira + cor** padronizada em presença, relatórios e joins legados
+- Presença mobile: botão fixo e retorno em 3 colunas
+- `SiteConfig` com persistência em `data/site-settings.json` (HTTP/HTTPS)
 
 ---
 
@@ -184,7 +223,7 @@ Endpoints via `?api=<nome>` (retorno JSON):
 
 - Sessão PHP gerenciada pela classe `Seguranca`
 - Páginas `cadastro`, `presenca` e `cadastro_editar` exigem login (`Seguranca::check()`)
-- Página `estatisticas` exige CPF de administrador (`Seguranca::checkAdmin()`)
+- Páginas `estatisticas`, `config`, `checkin-andamento` e download de relatórios exigem admin (`Seguranca::checkAdmin()`)
 - CPFs de admin configurados em `Seguranca::getCpfsAdmins()`
 
 > **Atenção:** O login da equipe é simplificado (CPF sem senha forte). Adequado para ambiente controlado do evento; revise antes de expor na internet.
@@ -195,35 +234,42 @@ Endpoints via `?api=<nome>` (retorno JSON):
 
 ```
 checkin-sj/
-├── index.php                 # Bootstrap da aplicação
-├── config-default.php        # Template de configuração
+├── index.php
+├── config-default.php
 ├── config.php                # Config local (não versionado)
+├── data/
+│   └── site-settings.json    # Protocolo HTTP/HTTPS
 ├── composer.json
 ├── src/
 │   ├── php/
-│   │   ├── App.php           # Inicialização e criação de tabelas
-│   │   ├── DataBase.php      # Camada PDO genérica (CRUD, queries)
-│   │   ├── Seguranca.php     # Sessão e controle de acesso
-│   │   ├── BdVisitantes.php  # Visitantes
-│   │   ├── BdPresencas.php   # Presenças
-│   │   ├── BdLogins.php      # Equipe
-│   │   ├── BdComentarios.php
-│   │   ├── BdMidias.php
-│   │   ├── BdLogDb.php
-│   │   ├── BdModelo.php
-│   │   └── estrutura_01.php  # Layout HTML + roteamento page/api
-│   ├── html/                 # Views
-│   ├── api/                  # Controllers JSON
-│   ├── js/                   # Scripts (máscaras, câmera, AJAX)
-│   └── css/                  # Estilos (Bootstrap, custom)
+│   │   ├── App.php
+│   │   ├── SiteConfig.php
+│   │   ├── RelatorioGeral.php
+│   │   ├── Seguranca.php
+│   │   ├── BdVisitantes.php
+│   │   ├── BdPresencas.php
+│   │   ├── BdLogins.php
+│   │   ├── MidiaVisitante.php
+│   │   └── estrutura_01.php
+│   ├── html/
+│   │   ├── config.php
+│   │   ├── estatisticas.php
+│   │   ├── checkin-andamento.php
+│   │   └── form_visitante.php
+│   ├── api/
+│   │   ├── relatorio.php
+│   │   ├── estatistica.php
+│   │   └── cadastro.php
+│   └── js/
+│       ├── visitante-foto.js
+│       └── visitante-popup.js
 └── vendor/                   # Composer (mpdf)
 ```
 
 ### Frontend
 - Bootstrap 5, jQuery, jQuery Mask
 - SweetAlert2 para notificações
-- html2canvas para captura de imagem
-- Scripts de câmera em `src/js/camera.js`, `script_cam.js`
+- IndexedDB / localStorage para fila offline de cadastros
 
 ---
 
@@ -231,11 +277,11 @@ checkin-sj/
 
 Conforme `tarefas.txt`:
 
-- [ ] Estatísticas em tempo real de quem está entrando
+- [x] Estatísticas em tempo real de quem está entrando (Check-in em andamento)
 - [ ] Sorteio de público para participação no palco
 - [ ] Verificação de elegibilidade para pulseira VIP
-- [ ] Validação de cadastros duplicados e presença sem cadastro
-- [ ] Testes de stress no servidor
+- [x] Validação/indicadores de cadastros duplicados e presença sem cadastro
+- [ ] Testes de stress no servidor (ambiente de produção)
 
 ---
 

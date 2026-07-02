@@ -53,6 +53,55 @@ class MidiaUsuario
         return BASE_URL . 'src/midia/user.webp';
     }
 
+    /**
+     * Caminho absoluto ou data URI da foto para uso em PDF (mPDF).
+     */
+    public static function caminhoAbsolutoDoUsuario($user)
+    {
+        $resolver = function ($caminho) {
+            if (!$caminho) {
+                return '';
+            }
+            if (strpos($caminho, 'data:') === 0) {
+                return $caminho;
+            }
+            if (strpos($caminho, 'http://') === 0 || strpos($caminho, 'https://') === 0) {
+                if (defined('BASE_URL') && strpos($caminho, BASE_URL) === 0) {
+                    $rel = ltrim(substr($caminho, strlen(BASE_URL)), '/');
+                    $abs = BASE_DIR . str_replace('/', DIRECTORY_SEPARATOR, $rel);
+                    if (is_file($abs)) {
+                        return $abs;
+                    }
+                }
+                return $caminho;
+            }
+            $abs = BASE_DIR . ltrim(str_replace('/', DIRECTORY_SEPARATOR, $caminho), DIRECTORY_SEPARATOR);
+            return is_file($abs) ? $abs : '';
+        };
+
+        foreach (['fotoUrl', 'foto'] as $campo) {
+            if (empty($user[$campo])) {
+                continue;
+            }
+            $resolved = $resolver($user[$campo]);
+            if ($resolved !== '') {
+                return $resolved;
+            }
+        }
+
+        $id = preg_replace('/\D/', '', (string) ($user['id'] ?? ''));
+        if ($id) {
+            foreach (glob(self::dirPath() . $id . '.*') ?: [] as $file) {
+                if (is_file($file)) {
+                    return $file;
+                }
+            }
+        }
+
+        $fallback = BASE_DIR . 'src' . DIRECTORY_SEPARATOR . 'midia' . DIRECTORY_SEPARATOR . 'user.webp';
+        return is_file($fallback) ? $fallback : '';
+    }
+
     public static function salvarDeBase64($base64, $identificador)
     {
         if (!is_string($base64) || trim($base64) === '') {
