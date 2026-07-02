@@ -121,17 +121,36 @@ class RelatorioGeral
 
     private static function dirTempMpdf()
     {
-        $dir = BASE_DIR . 'data/tmp/mpdf/';
+        $candidatos = [
+            BASE_DIR . 'data/tmp/mpdf/',
+            rtrim(sys_get_temp_dir(), '/\\') . DIRECTORY_SEPARATOR . 'checkin-js-mpdf' . DIRECTORY_SEPARATOR,
+        ];
 
-        if (!is_dir($dir) && !mkdir($dir, 0755, true) && !is_dir($dir)) {
-            throw new RuntimeException('Não foi possível criar o diretório temporário do PDF.');
+        foreach ($candidatos as $dir) {
+            if (self::garantirDirGravavel($dir)) {
+                return $dir;
+            }
+        }
+
+        throw new RuntimeException(
+            'Nenhum diretório temporário gravável para o PDF. '
+            . 'Tente: chmod 775 ' . BASE_DIR . 'data/tmp/mpdf'
+        );
+    }
+
+    private static function garantirDirGravavel($dir)
+    {
+        if (!is_dir($dir)) {
+            if (!@mkdir($dir, 0775, true) && !is_dir($dir)) {
+                return false;
+            }
         }
 
         if (!is_writable($dir)) {
-            throw new RuntimeException('Diretório temporário do PDF sem permissão de escrita: ' . $dir);
+            @chmod($dir, 0775);
         }
 
-        return $dir;
+        return is_dir($dir) && is_writable($dir);
     }
 
     public static function downloadPdf()
