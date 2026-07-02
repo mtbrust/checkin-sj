@@ -23,7 +23,7 @@ define('BASE_DOMAIN', $_SERVER['SERVER_NAME']);
  * (localhost, vhost, www.domínio.com.br, localhost/pasta/, www.domínio.com.br/pasta/, etc.)
  * Usado para definir variáveis de ambiente (DEV, HOMOLOG, PROD)
  */
-define('BASE_URL', 'http' . ((isset($_SERVER['HTTPS'])) ? 's' : '') . '://' . $_SERVER['SERVER_NAME'] . str_replace('index.php', '', $_SERVER['SCRIPT_NAME']));
+define('BASE_URL', SiteConfig::montarBaseUrl());
 
 
 /**

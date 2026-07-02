@@ -202,7 +202,7 @@ class BdPresencas extends DataBase
         $table = parent::fullTableName();
 
         // Monta SQL.
-        $sql = "SELECT COUNT(*) as qtd FROM (SELECT count(*) FROM $table WHERE dtCreate >= '$dataIni' and dtCreate < '$dataFim' GROUP BY pulseira) tbl";
+        $sql = "SELECT COUNT(*) as qtd FROM (SELECT count(*) FROM $table WHERE dtCreate >= '$dataIni' and dtCreate < '$dataFim' GROUP BY pulseira, tpulseira) tbl";
 
         // Executa o select
         $r = parent::executeQuery($sql);
@@ -233,6 +233,51 @@ class BdPresencas extends DataBase
 
         // Retorna primeira linha.
         return $r[0]['qtd'];
+    }
+
+    public function qtdPulseirasSemCadastro()
+    {
+        $table = parent::fullTableName();
+        $tableVisitantes = parent::fullTableName('visitantes');
+
+        $sql = "SELECT COUNT(*) as qtd FROM (
+            SELECT DISTINCT p.pulseira, p.tpulseira
+            FROM $table p
+            LEFT JOIN $tableVisitantes v ON v.pulseira = p.pulseira AND v.tpulseira = p.tpulseira
+            WHERE v.id IS NULL
+        ) tbl";
+
+        $r = parent::executeQuery($sql);
+
+        if (!$r) {
+            return 0;
+        }
+
+        return (int) $r[0]['qtd'];
+    }
+
+    public function qtdPulseirasSemCadastroDia($dia)
+    {
+        $table = parent::fullTableName();
+        $tableVisitantes = parent::fullTableName('visitantes');
+        $dia = preg_replace('/[^0-9\-]/', '', $dia);
+
+        $sql = "SELECT COUNT(*) as qtd FROM (
+            SELECT p.pulseira, p.tpulseira
+            FROM $table p
+            LEFT JOIN $tableVisitantes v ON v.pulseira = p.pulseira AND v.tpulseira = p.tpulseira
+            WHERE v.id IS NULL
+            AND DATE(p.dtCreate) = '$dia'
+            GROUP BY p.pulseira, p.tpulseira
+        ) tbl";
+
+        $r = parent::executeQuery($sql);
+
+        if (!$r) {
+            return 0;
+        }
+
+        return (int) $r[0]['qtd'];
     }
     
 
@@ -277,15 +322,107 @@ class BdPresencas extends DataBase
         // Retorna primeira linha.
         return $r[0]['qtd'];
     }
-    
 
-    public function dias($pulseira)
+    public function estatisticasPorUsuario($idUser)
+    {
+        $idUser = (int) $idUser;
+        $table = parent::fullTableName();
+        $hoje = date('Y-m-d');
+
+        $sql = "SELECT
+            COUNT(*) as presencas_total,
+            SUM(CASE WHEN DATE(dtCreate) = '$hoje' THEN 1 ELSE 0 END) as presencas_hoje
+            FROM $table
+            WHERE idLoginCreate = '$idUser'";
+
+        $r = parent::executeQuery($sql);
+
+        if (!$r) {
+            return [
+                'presencas_total' => 0,
+                'presencas_hoje' => 0,
+            ];
+        }
+
+        return array_map('intval', $r[0]);
+    }
+
+    public function ultimasPresencasPorUsuario($idUser, $qtd = 5)
+    {
+        $idUser = (int) $idUser;
+        $qtd = max(1, min(20, (int) $qtd));
+        $table = parent::fullTableName();
+        $tableVisitantes = parent::fullTableName('visitantes');
+
+        $sql = "SELECT p.pulseira, p.tpulseira, p.dtCreate, v.id, v.fullName
+            FROM $table p
+            LEFT JOIN $tableVisitantes v ON v.pulseira = p.pulseira AND v.tpulseira = p.tpulseira
+            WHERE p.idLoginCreate = '$idUser'
+            ORDER BY p.dtCreate DESC
+            LIMIT $qtd";
+
+        return parent::executeQuery($sql) ?: [];
+    }
+
+    public function ultimoIdPresenca()
+    {
+        $table = parent::fullTableName();
+        $sql = "SELECT COALESCE(MAX(id), 0) as ultimoId FROM $table";
+
+        $r = parent::executeQuery($sql);
+
+        if (!$r) {
+            return 0;
+        }
+
+        return (int) $r[0]['ultimoId'];
+    }
+
+    public function presencasAndamentoComFoto($ultimoIdPresenca = 0, $qtd = 8)
+    {
+        $ultimoIdPresenca = (int) $ultimoIdPresenca;
+        $qtd = max(1, min(20, (int) $qtd));
+
+        if ($ultimoIdPresenca <= 0) {
+            return [];
+        }
+
+        $table = parent::fullTableName();
+        $tableVisitantes = parent::fullTableName('visitantes');
+
+        $joinVisitante = "LEFT JOIN $tableVisitantes v ON v.id = (
+            SELECT v2.id FROM $tableVisitantes v2
+            WHERE v2.pulseira = p.pulseira
+            AND UPPER(v2.tpulseira) = UPPER(p.tpulseira)
+            ORDER BY v2.id DESC
+            LIMIT 1
+        )";
+
+        $select = "SELECT p.id as idPresenca, p.pulseira, p.tpulseira, p.dtCreate,
+            v.id as idVisitante, v.fullName, v.foto, v.status";
+
+        $sql = "$select
+            FROM $table p
+            $joinVisitante
+            WHERE p.id > $ultimoIdPresenca
+            ORDER BY p.id ASC
+            LIMIT $qtd";
+
+        return parent::executeQuery($sql) ?: [];
+    }
+
+    public function dias($pulseira, $tpulseira = null)
     {
         // Nome completo da tabela.
         $table = parent::fullTableName();
 
         // Monta SQL.
-        $sql = "SELECT day(dtCreate) as dia FROM $table where pulseira = $pulseira group by day(dtCreate)";
+        $where = "pulseira = '$pulseira'";
+        if ($tpulseira !== null && $tpulseira !== '') {
+            $tpulseira = strtoupper($tpulseira);
+            $where .= " AND UPPER(tpulseira) = '$tpulseira'";
+        }
+        $sql = "SELECT day(dtCreate) as dia FROM $table WHERE $where GROUP BY day(dtCreate)";
 
         // Executa o select
         $r = parent::executeQuery($sql);

@@ -6,8 +6,12 @@ class App
     {
         date_default_timezone_set('America/Sao_Paulo');
 
+        require_once(__DIR__ . '/SiteConfig.php');
+
         // configurações
         require_once('config.php');
+
+        SiteConfig::aplicarRedirecionamento();
 
         // Carrega as dependências do composer;
         require_once "vendor/autoload.php";
@@ -21,11 +25,17 @@ class App
         require_once('src/php/BdComentarios.php');
         require_once('src/php/BdMidias.php');
         require_once('src/php/BdPresencas.php');
+        require_once('src/php/MidiaUsuario.php');
+        require_once('src/php/MidiaVisitante.php');
+        require_once('src/php/CargaTeste.php');
 
         // Segurança.
         require_once(BASE_DIR . 'src/php/Seguranca.php');
 
         Seguranca::init();
+
+        $bdLogins = new BdLogins();
+        $bdLogins->upDateTable();
     }
 
     public static function createTables()
@@ -36,6 +46,7 @@ class App
         $bdLog->createTable();
         $bdLogins = new BdLogins();
         $bdLogins->createTable();
+        $bdLogins->upDateTable();
         $bdLogins->seeds();
         $BdVisitantes = new BdVisitantes();
         $BdVisitantes->createTable();

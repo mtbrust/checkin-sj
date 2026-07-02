@@ -10,14 +10,42 @@ $get = $_GET;
 
 if (isset($_POST['acao'])) {
 
-    // ação solicitada na config.
     $acao = $_POST['acao'];
     $msg = 'Ação realizada';
     $ret = true;
 
     switch ($acao) {
         case 'teste':
-            $msg = "Teste realizado com sucesso.";
+            $msg = 'Teste realizado com sucesso.';
+            break;
+
+        case 'resumo':
+            $BdVisitantes = new BdVisitantes();
+            $BdPresencas = new BdPresencas();
+            $BdLogins = new BdLogins();
+            $hoje = date('Y-m-d');
+            $detalhes = $BdVisitantes->estatisticasResumo();
+
+            $ret = [
+                'cadastros_total' => (int) ($BdVisitantes->qtdCadastrosPulseira() ?: 0),
+                'cadastros_hoje' => (int) ($BdVisitantes->qtdCadastrosPulseiraDia($hoje) ?: 0),
+                'presencas_total' => (int) ($BdPresencas->qtdpresencaspulseiras() ?: 0),
+                'presencas_hoje' => (int) ($BdPresencas->qtdpresencaspulseirasDia($hoje) ?: 0),
+                'duplicados' => (int) ($BdVisitantes->qtdCadastrosDuplicados() ?: 0),
+                'sem_cadastro' => (int) ($BdPresencas->qtdPulseirasSemCadastro() ?: 0),
+                'sem_cadastro_hoje' => (int) ($BdPresencas->qtdPulseirasSemCadastroDia($hoje) ?: 0),
+                'equipe' => (int) ($BdLogins->count() ?: 0),
+                'registros' => $detalhes['registros'],
+                'visitantes' => $detalhes['visitantes'],
+                'amarela' => $detalhes['amarela'],
+                'azul' => $detalhes['azul'],
+                'calouros' => $detalhes['calouros'],
+                'palco' => $detalhes['palco'],
+                'atualizar' => $detalhes['atualizar'],
+                'atencao' => $detalhes['atencao'],
+                'bloqueado' => $detalhes['bloqueado'],
+            ];
+            $msg = 'OK.';
             break;
 
         case 'qtdCadastrosPulseira':
@@ -34,37 +62,13 @@ if (isset($_POST['acao'])) {
 
         case 'visitasDiarias':
             $BdPresencas = new BdPresencas();
-            $visitas = $BdPresencas->visitasDiarias();
-
-            $ret = '';
-            foreach ($visitas as $key => $value) {
-                $ret .= '<div class=" col-sm-3 col-6 mt-3">';
-                $ret .= '    <div class="box_statistica">';
-                $ret .= '        <h6>Presenças dia '. $value['dia'] .'</h6>';
-                $ret .= '        <span>'. $value['data'] .'</span>';
-                $ret .= '        <h1>'. $value['qtd'] .'</h1>';
-                $ret .= '    </div>';
-                $ret .= '</div>';
-            }
-
+            $ret = $BdPresencas->visitasDiarias() ?: [];
             $msg = 'OK.';
             break;
 
         case 'cadastrosDiarios':
             $bdVisitantes = new BdVisitantes();
-            $visitas = $bdVisitantes->cadastrosDiarios();
-
-            $ret = '';
-            foreach ($visitas as $key => $value) {
-                $ret .= '<div class=" col-sm-3 col-6 mt-3">';
-                $ret .= '    <div class="box_statistica">';
-                $ret .= '        <h6>Cadastros dia '. $value['dia'] .'</h6>';
-                $ret .= '        <span>'. $value['data'] .'</span>';
-                $ret .= '        <h1>'. $value['qtd'] .'</h1>';
-                $ret .= '    </div>';
-                $ret .= '</div>';
-            }
-
+            $ret = $bdVisitantes->cadastrosDiarios() ?: [];
             $msg = 'OK.';
             break;
 
@@ -92,8 +96,58 @@ if (isset($_POST['acao'])) {
             $msg = 'OK.';
             break;
 
+        case 'checkinandamento':
+            $bdPresencas = new BdPresencas();
+
+            if (isset($_POST['inicializar']) && (int) $_POST['inicializar'] === 1) {
+                $ret = [
+                    'itens' => [],
+                    'ultimo_id_imagem' => $bdPresencas->ultimoIdPresenca(),
+                ];
+                $msg = 'OK.';
+                break;
+            }
+
+            $ultimoIdPresenca = isset($_POST['ultimo_id_imagem']) ? (int) $_POST['ultimo_id_imagem'] : 0;
+            $qtd = isset($_POST['qtd']) ? (int) $_POST['qtd'] : 8;
+
+            $lista = $bdPresencas->presencasAndamentoComFoto($ultimoIdPresenca, $qtd) ?: [];
+            $itens = [];
+            $novoUltimoIdPresenca = $ultimoIdPresenca;
+
+            foreach ($lista as $row) {
+                $idPresenca = (int) $row['idPresenca'];
+                if ($idPresenca > $novoUltimoIdPresenca) {
+                    $novoUltimoIdPresenca = $idPresenca;
+                }
+
+                $fotoUrl = '';
+                if (!empty($row['foto'])) {
+                    $fotoUrl = MidiaVisitante::urlDoVisitante(['foto' => $row['foto']]);
+                }
+
+                $itens[] = [
+                    'idPresenca' => $idPresenca,
+                    'idVisitante' => isset($row['idVisitante']) ? (int) $row['idVisitante'] : 0,
+                    'pulseira' => $row['pulseira'],
+                    'tpulseira' => $row['tpulseira'],
+                    'fullName' => $row['fullName'] ?? 'Não cadastrado',
+                    'status' => isset($row['status']) ? (int) $row['status'] : 0,
+                    'dtCreate' => $row['dtCreate'],
+                    'fotoUrl' => $fotoUrl,
+                ];
+            }
+
+            $ret = [
+                'itens' => $itens,
+                'ultimo_id_imagem' => $novoUltimoIdPresenca,
+            ];
+            $msg = 'OK.';
+            break;
+
         default:
-            # code...
+            $ret = false;
+            $msg = 'Ação não encontrada.';
             break;
     }
 }

@@ -17,8 +17,6 @@ $visitante = $BdVisitantes->selectById($_GET['id']);
         </div>
     </div>
 
-    <div class="row my-2">
-        <?php require_once(BASE_DIR . 'src/html/form_visitante.php'); ?>
-    </div>
+    <?php require_once(BASE_DIR . 'src/html/form_visitante.php'); ?>
 
 </div>

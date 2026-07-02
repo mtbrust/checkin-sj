@@ -19,6 +19,7 @@ function ajaxDados(url_api, dados, callback, type = 'POST'){
     data: dados,
     processData: false,
     contentType: false,
+    dataType: 'json',
     beforeSend: function(ret) {
         // Preparação antes do envio.
     },
@@ -37,6 +38,35 @@ function ajaxDados(url_api, dados, callback, type = 'POST'){
     }).done(function (ret) {
         // Para concluir o processo.
     })
+}
+
+/**
+ * Exibe notificação toast na tela com ícone X para fechar e timer de 1s.
+ *
+ * @param {string} icon
+ * @param {string} title
+ * @param {string} text
+ */
+function notificaToast(icon, title, text) {
+    Swal.fire({
+        icon: icon,
+        title: title,
+        text: text || '',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        showCloseButton: true,
+        timer: 1000,
+        timerProgressBar: true
+    });
+}
+
+function notificaSucesso(text, title) {
+    notificaToast('success', title || 'Sucesso.', text);
+}
+
+function notificaErro(text, title) {
+    notificaToast('error', title || 'Erro.', text);
 }
 
 /**
@@ -181,30 +211,13 @@ function teste_ajaxDados()
             
             // code...
 
-            // Notificação.
-            Swal.fire({
-                icon: "success",
-                title: "Sucesso.",
-                text: ret.msg,
-                toast: true,
-                position: "top-end",
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true,
-            });
+            notificaSucesso(ret.msg);
         }else{
 
             // code...
 
             // Notificação.
-            Swal.fire({
-                icon: 'error',
-                title: 'Erro.',
-                text: ret.msg,
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-            });
+            notificaErro(ret.msg);
         }
     })
 

@@ -1,7 +1,7 @@
 <?php
 
 // Página
-$page = (isset($_GET["page"])?$_GET["page"]:"");
+$page = (isset($_GET["page"]) && $_GET["page"] !== '') ? $_GET["page"] : 'home';
 
 // Página
 $api = (isset($_GET["api"])?$_GET["api"]:"");
@@ -37,9 +37,7 @@ $page_name = BASE_NAME . ' - ' . $page;
         require_once(BASE_DIR . 'src/html/cabecalho.php');
 
         // Trás conteúdo da página.
-        if ($page) {
-            require_once(BASE_DIR . 'src/html/' . $page . '.php');
-        }
+        require_once(BASE_DIR . 'src/html/' . $page . '.php');
 
         // Trás rodapé da página.
         require_once(BASE_DIR . 'src/html/rodape.php');
@@ -48,7 +46,9 @@ $page_name = BASE_NAME . ' - ' . $page;
 
     <script src="src/js/jquery.min.js"></script>
     <script src="src/js/jquery.mask.min.js"></script>
+    <script>window.SITE_BASE_URL = '<?php echo BASE_URL; ?>';</script>
     <script src="src/js/default-min.js"></script>
+    <script src="src/js/visitante-popup.js"></script>
     <script src="src/js/mask-min.js"></script>
     <script src="src/js/bootstrap.bundle.min.js"></script>
     <!-- <script src="src/js/script_cam.js"></script> -->

@@ -232,7 +232,7 @@ class BdVisitantes extends DataBase
         $table = parent::fullTableName();
 
         // Monta SQL.
-        $sql = "SELECT COUNT(*) as qtd FROM (SELECT count(*) FROM $table WHERE dtCreate >= '$dataIni' and dtCreate < '$dataFim' GROUP BY pulseira) tbl";
+        $sql = "SELECT COUNT(*) as qtd FROM (SELECT count(*) FROM $table WHERE dtCreate >= '$dataIni' and dtCreate < '$dataFim' GROUP BY pulseira, tpulseira) tbl";
 
         // Executa o select
         $r = parent::executeQuery($sql);
@@ -338,6 +338,53 @@ class BdVisitantes extends DataBase
         return $r[0]['qtd'];
     }
 
+    public function estatisticasPorUsuario($idUser)
+    {
+        $idUser = (int) $idUser;
+        $table = parent::fullTableName();
+        $hoje = date('Y-m-d');
+
+        $sql = "SELECT
+            COUNT(*) as cadastros_total,
+            SUM(CASE WHEN DATE(dtCreate) = '$hoje' THEN 1 ELSE 0 END) as cadastros_hoje,
+            SUM(CASE WHEN UPPER(tpulseira) = 'AMARELA' THEN 1 ELSE 0 END) as amarela,
+            SUM(CASE WHEN UPPER(tpulseira) = 'AZUL' THEN 1 ELSE 0 END) as azul,
+            SUM(CASE WHEN calouro = 'SIM' THEN 1 ELSE 0 END) as calouros,
+            SUM(CASE WHEN palco = 'SIM' THEN 1 ELSE 0 END) as palco
+            FROM $table
+            WHERE idLoginCreate = '$idUser'";
+
+        $r = parent::executeQuery($sql);
+
+        if (!$r) {
+            return [
+                'cadastros_total' => 0,
+                'cadastros_hoje' => 0,
+                'amarela' => 0,
+                'azul' => 0,
+                'calouros' => 0,
+                'palco' => 0,
+            ];
+        }
+
+        return array_map('intval', $r[0]);
+    }
+
+    public function ultimosCadastrosPorUsuario($idUser, $qtd = 5)
+    {
+        $idUser = (int) $idUser;
+        $qtd = max(1, min(20, (int) $qtd));
+        $table = parent::fullTableName();
+
+        $sql = "SELECT id, pulseira, tpulseira, fullName, dtCreate
+            FROM $table
+            WHERE idLoginCreate = '$idUser'
+            ORDER BY dtCreate DESC
+            LIMIT $qtd";
+
+        return parent::executeQuery($sql) ?: [];
+    }
+
     public function pesquisar($termo)
     {
         // Ajusta nome real da tabela.
@@ -355,8 +402,8 @@ class BdVisitantes extends DataBase
             $where = "vi.telefone = '$termo' OR vi.pulseira = '$termo' OR vi.oldPulseira = '$termo'";
 
             $select = "GROUP_CONCAT(DATE(p.dtCreate) SEPARATOR ',') as presencas, vi.*";
-            $inner = "left join sj_presencas p on vi.pulseira = p.pulseira";
-            $group = "GROUP by vi.pulseira";
+            $inner = "left join sj_presencas p on vi.pulseira = p.pulseira and UPPER(vi.tpulseira) = UPPER(p.tpulseira)";
+            $group = "GROUP by vi.pulseira, vi.tpulseira";
             $order = "ORDER by p.dtcreate";
         }
 
@@ -374,6 +421,139 @@ class BdVisitantes extends DataBase
         return $r;
     }
 
+    /**
+     * Monta cláusula WHERE a partir dos filtros de listagem.
+     *
+     * @param array $filtros
+     * @return string
+     */
+    private function montaWhereListagem($filtros = [])
+    {
+        $where = ['1=1'];
+
+        if (!empty($filtros['nome'])) {
+            $nome = addslashes($filtros['nome']);
+            $where[] = "fullName LIKE '%$nome%'";
+        }
+
+        if (!empty($filtros['pulseira'])) {
+            $pulseira = parent::limpaInject($filtros['pulseira']);
+            if ($pulseira !== '') {
+                $where[] = "pulseira = '$pulseira'";
+            }
+        }
+
+        if (!empty($filtros['oldPulseira'])) {
+            $oldPulseira = parent::limpaInject($filtros['oldPulseira']);
+            if ($oldPulseira !== '') {
+                $where[] = "oldPulseira = '$oldPulseira'";
+            }
+        }
+
+        if (!empty($filtros['tpulseira']) && in_array(strtolower($filtros['tpulseira']), ['amarela', 'azul'], true)) {
+            $tpulseira = strtoupper(addslashes($filtros['tpulseira']));
+            $where[] = "tpulseira = '$tpulseira'";
+        }
+
+        if (!empty($filtros['telefone'])) {
+            $telefone = addslashes(preg_replace('/\D/', '', $filtros['telefone']));
+            if ($telefone !== '') {
+                $where[] = "telefone LIKE '%$telefone%'";
+            }
+        }
+
+        if (!empty($filtros['cidade'])) {
+            $cidade = addslashes($filtros['cidade']);
+            $where[] = "cidade LIKE '%$cidade%'";
+        }
+
+        if (!empty($filtros['bairro'])) {
+            $bairro = addslashes($filtros['bairro']);
+            $where[] = "bairro LIKE '%$bairro%'";
+        }
+
+        if (!empty($filtros['sexo']) && in_array(strtoupper($filtros['sexo']), ['M', 'F'], true)) {
+            $sexo = strtoupper(addslashes($filtros['sexo']));
+            $where[] = "sexo = '$sexo'";
+        }
+
+        if (isset($filtros['status']) && $filtros['status'] !== '' && in_array((int) $filtros['status'], [1, 2, 3, 4], true)) {
+            $status = (int) $filtros['status'];
+            $where[] = "status = '$status'";
+        }
+
+        if (!empty($filtros['calouro']) && strtoupper($filtros['calouro']) === 'SIM') {
+            $where[] = "calouro = 'SIM'";
+        }
+
+        if (!empty($filtros['palco']) && strtoupper($filtros['palco']) === 'SIM') {
+            $where[] = "palco = 'SIM'";
+        }
+
+        if (!empty($filtros['duplicados'])) {
+            $table = parent::fullTableName();
+            $where[] = "(pulseira, UPPER(tpulseira)) IN (
+                SELECT pulseira, UPPER(tpulseira)
+                FROM $table
+                GROUP BY pulseira, UPPER(tpulseira)
+                HAVING COUNT(*) > 1
+            )";
+        }
+
+        if (!empty($filtros['hoje'])) {
+            $hoje = date('Y-m-d');
+            $where[] = "DATE(dtCreate) = '$hoje'";
+        } elseif (!empty($filtros['data'])) {
+            $data = preg_replace('/[^0-9\-]/', '', $filtros['data']);
+            if ($data !== '') {
+                $where[] = "DATE(dtCreate) = '$data'";
+            }
+        }
+
+        return implode(' AND ', $where);
+    }
+
+    /**
+     * Lista visitantes com filtros e paginação.
+     *
+     * @param array $filtros
+     * @param int $pagina
+     * @param int $qtd
+     * @return bool|array
+     */
+    public function listarFiltrado($filtros = [], $pagina = 1, $qtd = 25)
+    {
+        $table = parent::fullTableName();
+        $pagina = max(1, (int) $pagina);
+        $qtd = max(1, min(100, (int) $qtd));
+        $offset = ($pagina - 1) * $qtd;
+        $where = $this->montaWhereListagem($filtros);
+
+        $sql = "SELECT * FROM $table WHERE $where ORDER BY id DESC LIMIT $offset, $qtd";
+
+        return parent::executeQuery($sql);
+    }
+
+    /**
+     * Conta visitantes com os mesmos filtros da listagem.
+     *
+     * @param array $filtros
+     * @return int
+     */
+    public function contarFiltrado($filtros = [])
+    {
+        $table = parent::fullTableName();
+        $where = $this->montaWhereListagem($filtros);
+        $sql = "SELECT COUNT(*) as qtd FROM $table WHERE $where";
+        $r = parent::executeQuery($sql);
+
+        if (!$r) {
+            return 0;
+        }
+
+        return (int) $r[0]['qtd'];
+    }
+
     public function getStatus($pulseira, $tpulseira)
     {
         // Ajusta nome real da tabela.
@@ -385,13 +565,13 @@ class BdVisitantes extends DataBase
         // Monta SQL.
         // $sql = "SELECT v.id, v.fullName, v.status, count(p.id) as qtdPresenca FROM $table v left join $tablePresenca p on v.pulseira = p.pulseira and v.tpulseira = p.tpulseira WHERE p.pulseira = '$pulseira' AND p.tpulseira = '$tpulseira' AND v.status > 1 GROUP BY DATE(p.dtCreate);";
 
-        $select = "SELECT v.id as id, v.fullName as fullName, v.pulseira as pulseira, v.status as status, DATE(p.dtCreate) as presencas"; 
-        $from = "FROM `sj_presencas` p LEFT JOIN `sj_visitantes` v on p.pulseira = v.pulseira and v.tpulseira = p.tpulseira";
+        $select = "SELECT v.id as id, v.fullName as fullName, v.pulseira as pulseira, v.tpulseira as tpulseira, v.status as status, DATE(p.dtCreate) as presencas"; 
+        $from = "FROM `sj_presencas` p LEFT JOIN `sj_visitantes` v on p.pulseira = v.pulseira and UPPER(v.tpulseira) = UPPER(p.tpulseira)";
         $where = "where p.pulseira = '$pulseira' AND p.tpulseira = '$tpulseira'";
-        $group = "GROUP BY p.pulseira, DATE(p.dtCreate)";
+        $group = "GROUP BY p.pulseira, p.tpulseira, DATE(p.dtCreate)";
         $tbl1 = "$select $from $where $group";
 
-        $sql = "SELECT id, fullName, status, pulseira, count(*) as qtdPresenca from ($tbl1) tbl1 GROUP BY pulseira;";
+        $sql = "SELECT id, fullName, status, pulseira, tpulseira, count(*) as qtdPresenca from ($tbl1) tbl1 GROUP BY pulseira, tpulseira;";
 
         // echo $sql;
         // exit;
@@ -407,6 +587,40 @@ class BdVisitantes extends DataBase
         return $r[0];
     }
 
+    public function estatisticasResumo()
+    {
+        $table = parent::fullTableName();
+
+        $sql = "SELECT
+            COUNT(*) as registros,
+            COUNT(DISTINCT pulseira) as visitantes,
+            SUM(CASE WHEN UPPER(tpulseira) = 'AMARELA' THEN 1 ELSE 0 END) as amarela,
+            SUM(CASE WHEN UPPER(tpulseira) = 'AZUL' THEN 1 ELSE 0 END) as azul,
+            SUM(CASE WHEN calouro = 'SIM' THEN 1 ELSE 0 END) as calouros,
+            SUM(CASE WHEN palco = 'SIM' THEN 1 ELSE 0 END) as palco,
+            SUM(CASE WHEN status = 2 THEN 1 ELSE 0 END) as atualizar,
+            SUM(CASE WHEN status = 3 THEN 1 ELSE 0 END) as atencao,
+            SUM(CASE WHEN status = 4 THEN 1 ELSE 0 END) as bloqueado
+            FROM $table";
+
+        $r = parent::executeQuery($sql);
+
+        if (!$r) {
+            return [
+                'registros' => 0,
+                'visitantes' => 0,
+                'amarela' => 0,
+                'azul' => 0,
+                'calouros' => 0,
+                'palco' => 0,
+                'atualizar' => 0,
+                'atencao' => 0,
+                'bloqueado' => 0,
+            ];
+        }
+
+        return array_map('intval', $r[0]);
+    }
 
     public function qtdCadastrosDuplicados()
     {
@@ -457,7 +671,7 @@ class BdVisitantes extends DataBase
         $tableInnerPresenca = parent::fullTableName('presencas');
 
         // Monta SQL.
-        $sql = "SELECT tbl.id, tp.pulseira, tp.tpulseira, tbl.status, tbl.fullName, tp.dtCreate  FROM $tableInnerPresenca tp left JOIN $table tbl ON tp.pulseira = tbl.pulseira and tp.tpulseira = tbl.tpulseira ORDER BY tp.dtCreate desc LIMIT $qtd;";
+        $sql = "SELECT tbl.id, tp.pulseira, tp.tpulseira, tbl.status, tbl.fullName, tp.dtCreate  FROM $tableInnerPresenca tp left JOIN $table tbl ON tp.pulseira = tbl.pulseira and UPPER(tp.tpulseira) = UPPER(tbl.tpulseira) ORDER BY tp.dtCreate desc LIMIT $qtd;";
 
         // Executa o select
         $r = parent::executeQuery($sql);
@@ -478,7 +692,7 @@ class BdVisitantes extends DataBase
         $tableInnerPresenca = parent::fullTableName('presencas');
 
         // Monta SQL.
-        $sql = "SELECT tbl.id, tbl.pulseira, tbl.tpulseira, tbl.status, tbl.fullName, tbl.sexo, tbl.telefone, tbl.nascimento, tbl.foto, tp.dtCreate  FROM $tableInnerPresenca tp left JOIN $table tbl ON tp.pulseira = tbl.pulseira WHERE DAY(tp.dtCreate) = DAY(CURRENT_DATE()) AND tbl.palco = 'SIM' GROUP BY id ORDER BY tp.dtCreate ASC LIMIT $qtd;";
+        $sql = "SELECT tbl.id, tbl.pulseira, tbl.tpulseira, tbl.status, tbl.fullName, tbl.sexo, tbl.telefone, tbl.nascimento, tbl.foto, tp.dtCreate  FROM $tableInnerPresenca tp left JOIN $table tbl ON tp.pulseira = tbl.pulseira and UPPER(tp.tpulseira) = UPPER(tbl.tpulseira) WHERE DAY(tp.dtCreate) = DAY(CURRENT_DATE()) AND tbl.palco = 'SIM' GROUP BY id ORDER BY tp.dtCreate ASC LIMIT $qtd;";
 
         // Executa o select
         $r = parent::executeQuery($sql);

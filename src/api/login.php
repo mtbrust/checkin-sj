@@ -27,8 +27,15 @@ if (isset($_POST['acao'])) {
         case 'login':
             $bdLogins = new BdLogins();
             $user = $bdLogins->selectById($_POST['id']);
-            $dados = Seguranca::setSession($user);
-            $msg = 'Usuário logado: [' . $dados['id'] . '] ' . $dados['fullName'];
+
+            if ($user) {
+                $dados = Seguranca::setSession($user);
+                $msg = 'Usuário logado: [' . $dados['id'] . '] ' . $dados['fullName'];
+                $ret = true;
+            } else {
+                $ret = false;
+                $msg = 'Usuário não encontrado.';
+            }
             break;
 
         case 'sair':

@@ -52,7 +52,8 @@ class BdLogins extends DataBase
             "fullName"  => "VARCHAR(160) NULL",   // Nome Completo.
             "firstName" => "VARCHAR(40) NULL",    // Primeiro nome.
             "lastName"  => "VARCHAR(40) NULL",    // Último nome.
-            "fotoUrl"  => "VARCHAR(2048) NULL",  // URL da foto.
+            "foto"      => "LONGTEXT NULL",       // Legado (base64). Preferir fotoUrl.
+            "fotoUrl"   => "VARCHAR(2048) NULL",  // URL da foto em src/midia/users/.
 
             // Login - Pode ser usado para realizar o login.
             "userName" => "VARCHAR(32) NULL",    // User para logar.
@@ -99,6 +100,19 @@ class BdLogins extends DataBase
     {
         // Deleta a tabela.
         return parent::dropTable();
+    }
+
+    public function upDateTable()
+    {
+        $table = parent::fullTableName();
+        $sql = "SHOW COLUMNS FROM $table LIKE 'foto'";
+        $r = parent::executeQuery($sql);
+
+        if (!$r) {
+            parent::executeQuery("ALTER TABLE $table ADD foto LONGTEXT NULL AFTER lastName");
+        }
+
+        return true;
     }
 
 

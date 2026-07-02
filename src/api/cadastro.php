@@ -56,8 +56,23 @@ if (isset($_POST['f-nascimento-ano']) && isset($_POST['f-nascimento-mes']) && is
 }
 
 // Verifica se foi enviada nova foto de perfil.
-if (isset($_POST['f-fotoPerfil']) && $_POST['f-fotoPerfil']) {
-    $fields['foto'] = $_POST['f-fotoPerfil'];
+if (!empty($_POST['f-fotoPerfil'])) {
+    $identificadorFoto = $editar ? (int) $_POST['id'] : $_POST['f-pulseira'];
+    $fotoPath = MidiaVisitante::salvarDeBase64($_POST['f-fotoPerfil'], $identificadorFoto);
+
+    if ($fotoPath) {
+        $fields['foto'] = $fotoPath;
+    } else {
+        $resultado = [
+            'ret' => false,
+            'msg' => 'Não foi possível salvar a foto do visitante.',
+            'dados' => [],
+            'post' => $post,
+            'get' => $get,
+        ];
+        echo json_encode($resultado);
+        exit;
+    }
 }
 
 // Limpa campos vazios.

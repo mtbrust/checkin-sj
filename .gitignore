@@ -1,2 +1,4 @@
 /vendor/
 config.php
+/src/midia/users/*
+!/src/midia/users/.gitkeep

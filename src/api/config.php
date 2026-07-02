@@ -1,5 +1,21 @@
 <?php
 
+Seguranca::checkAdmin();
+
+$user = Seguranca::getSession();
+
+if ((int) $user['id'] !== 1) {
+    echo json_encode([
+        'ret' => false,
+        'acao' => isset($_POST['acao']) ? $_POST['acao'] : 'ND',
+        'msg' => 'Ação permitida apenas para o usuário principal.',
+        'dados' => [],
+        'post' => $_POST,
+        'get' => $_GET,
+    ]);
+    exit;
+}
+
 // Mensagens padrão de retorno.
 $ret = '';
 $msg = 'Execução não retornou resultados.';
@@ -17,7 +33,8 @@ if (isset($_POST['acao'])) {
 
     switch ($acao) {
         case 'teste':
-            $msg = "Teste realizado com sucesso.";
+            $ret = true;
+            $msg = 'Teste realizado com sucesso.';
             break;
 
         case 'resetarbanco':
@@ -49,8 +66,36 @@ if (isset($_POST['acao'])) {
             $msg = 'Logins resetados.';
             break;
 
+        case 'cargadetestes':
+            $carga = new CargaTeste();
+            $resumo = $carga->executar();
+            $dados = $resumo;
+            $msg = sprintf(
+                'Carga concluída: %d usuários, %d visitantes, %d presenças (%d sem cadastro). Cadastros corrigidos: %d.',
+                $resumo['usuarios'],
+                $resumo['visitantes'],
+                $resumo['presencas'],
+                $resumo['presenca_sem_cadastro'],
+                $resumo['cadastros_corrigidos']
+            );
+            break;
+
+        case 'salvarforcehttps':
+            $modo = isset($_POST['force_https']) ? $_POST['force_https'] : 'auto';
+            if (!SiteConfig::setForceHttps($modo)) {
+                $ret = false;
+                $msg = 'Não foi possível salvar a configuração de protocolo.';
+            } else {
+                $dados = [
+                    'force_https' => SiteConfig::getForceHttps(),
+                ];
+                $msg = 'Protocolo atualizado: ' . SiteConfig::rotuloForceHttps() . '.';
+            }
+            break;
+
         default:
-            # code...
+            $ret = false;
+            $msg = 'Ação não encontrada.';
             break;
     }
 }
