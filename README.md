@@ -10,15 +10,17 @@ Sistema web de **controle de cadastro e presença** para o evento **Semana Jovem
 
 ### Cadastro de visitantes
 - Registro com nome, telefone, sexo, data de nascimento, endereço e igreja/religião
-- Identificação por **pulseira** (número + cor: branca, amarela, vermelha ou azul)
+- Identificação por **chave composta de pulseira**: número + cor (amarela ou azul)
 - Suporte a troca de pulseira (`oldPulseira`)
 - Captura de foto via câmera (opcional)
+- Preview da foto em popup nas listagens
 - Flags de interesse: WhatsApp, informações, fé, contato, participação no palco, calouro
 - Status do visitante: `1` OK · `2` Atualizar · `3` Atenção · `4` Bloqueado
 
 ### Presença (check-in)
 - Registro rápido informando cor e número da pulseira
 - Retorno imediato do status do visitante (cadastrado, bloqueado, sem cadastro, etc.)
+- Layout mobile otimizado: botão de presença sempre visível e retorno compacto em 3 colunas
 - Teste de stress disponível para administradores (`?page=presenca&stress=1`)
 
 ### Equipe
@@ -36,7 +38,9 @@ Sistema web de **controle de cadastro e presença** para o evento **Semana Jovem
 - Cadastros e presenças por dia
 - Quantidade por tipo de pulseira
 - Cadastros duplicados
+- Pulseiras sem cadastro
 - Participantes do palco (visitantes presentes hoje que aceitaram ir ao palco)
+- Tela **Check-in em andamento** (`?page=checkin-andamento`) com atualização automática
 
 ---
 
@@ -138,6 +142,7 @@ http://localhost/checkin-sj/
 | `?page=pesquisa&f-pesquisa=...` | Pesquisa de visitantes |
 | `?page=cadastro_editar&id=X` | Editar cadastro *(requer login)* |
 | `?page=estatisticas` | Painel de estatísticas *(somente admin)* |
+| `?page=checkin-andamento` | Feed em tempo real das novas presenças *(somente admin)* |
 
 ### API JSON
 
@@ -149,6 +154,7 @@ Endpoints via `?api=<nome>` (retorno JSON):
 | `?api=equipe` | Login/cadastro por CPF (POST) |
 | `?api=cadastro` | Inserir/atualizar visitante (POST) |
 | `?api=presenca` | `acao=presenca` — registrar check-in |
+| `?api=visitante` | `acao=foto` — retornar URL de foto para popup/listagens |
 | `?api=estatistica` | Diversas ações: `ultimoscadastros`, `ultimaspresencas`, `cadastrosDiarios`, `visitasDiarias`, `participantespalco`, etc. |
 
 ### Fluxo típico no evento
@@ -156,7 +162,17 @@ Endpoints via `?api=<nome>` (retorno JSON):
 1. Voluntário acessa **Equipe** e faz login com CPF
 2. Na **Presença**, informa cor e número da pulseira do visitante
 3. Se não houver cadastro, vai em **Cadastro** e completa os dados
-4. Administrador acompanha **Estatísticas** e usa **Pesquisa** para localizar visitantes
+4. Administrador acompanha **Estatísticas**, **Check-in em andamento** e usa **Pesquisa** para localizar visitantes
+
+---
+
+## Novidades recentes
+
+- Configuração do site via `SiteConfig` com persistência em `data/site-settings.json` (modo HTTP/HTTPS e URL base)
+- Carga de testes ampliada para cenários reais (duplicados, presença sem cadastro, status variados)
+- Check-in em andamento inicia vazio ao abrir/recarregar e exibe apenas novas presenças
+- Fallback de foto no feed em tempo real para `src/midia/user.webp`
+- Padronização das consultas para considerar visitante por **pulseira + cor** em presença, últimas presenças e relatórios legados
 
 ---
 
