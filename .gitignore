@@ -2,3 +2,5 @@
 config.php
 /src/midia/users/*
 !/src/midia/users/.gitkeep
+/src/midia/visitantes/*
+!/src/midia/visitantes/.gitkeep
