@@ -155,8 +155,9 @@ class RelatorioGeral
 
     public static function downloadPdf()
     {
+        self::prepararAmbientePdf();
+
         $dados = self::coletarDados();
-        $html = self::montarHtmlPdf($dados);
         $css = self::cssPdf();
 
         $mpdf = new \Mpdf\Mpdf([
@@ -168,6 +169,8 @@ class RelatorioGeral
             'margin_footer' => 6,
             'setAutoTopMargin' => 'pad',
             'tempDir' => self::dirTempMpdf(),
+            'simpleTables' => true,
+            'packTableData' => true,
         ]);
 
         $ev = $dados['evento'];
@@ -175,11 +178,36 @@ class RelatorioGeral
         $mpdf->SetHTMLHeader(self::cabecalhoPdf($dados));
         $mpdf->SetHTMLFooter(self::rodapePdf($dados));
         $mpdf->WriteHTML($css, \Mpdf\HTMLParserMode::HEADER_CSS);
-        $mpdf->WriteHTML($html, \Mpdf\HTMLParserMode::HTML_BODY);
+        $mpdf->WriteHTML(self::montarHtmlPdfResumo($dados), \Mpdf\HTMLParserMode::HTML_BODY);
+
+        $visitantes = $dados['visitantes'] ?? [];
+        $mpdf->WriteHTML(self::htmlVisitantesCabecalho(count($visitantes)), \Mpdf\HTMLParserMode::HTML_BODY);
+
+        $lote = '';
+        $i = 0;
+        foreach ($visitantes as $v) {
+            $lote .= self::linhaVisitantePdf($v);
+            $i++;
+            if ($i % 75 === 0) {
+                $mpdf->WriteHTML($lote, \Mpdf\HTMLParserMode::HTML_BODY);
+                $lote = '';
+            }
+        }
+        if ($lote !== '') {
+            $mpdf->WriteHTML($lote, \Mpdf\HTMLParserMode::HTML_BODY);
+        }
+
+        $mpdf->WriteHTML('</tbody></table>', \Mpdf\HTMLParserMode::HTML_BODY);
 
         $nome = 'relatorio-geral-' . date('Y-m-d-His') . '.pdf';
         $mpdf->Output($nome, 'D');
         exit;
+    }
+
+    private static function prepararAmbientePdf()
+    {
+        @ini_set('memory_limit', '512M');
+        @set_time_limit(300);
     }
 
     public static function downloadCsv()
@@ -407,7 +435,7 @@ class RelatorioGeral
         return $html;
     }
 
-    private static function montarHtmlPdf($dados)
+    private static function montarHtmlPdfResumo($dados)
     {
         $r = $dados['resumo'];
         $html = '<h2>Estatísticas gerais</h2>';
@@ -443,14 +471,27 @@ class RelatorioGeral
 
         $html .= self::painelEquipeHtml($dados['equipe_usuarios'] ?? []);
 
-        $html .= '<pagebreak sheet-size="A4-L" />';
-        $html .= '<h2>Visitantes (' . count($dados['visitantes']) . ')</h2>';
+        return $html;
+    }
+
+    private static function htmlVisitantesCabecalho($total)
+    {
+        $html = '<pagebreak sheet-size="A4-L" />';
+        $html .= '<h2>Visitantes (' . (int) $total . ')</h2>';
         $html .= self::legendaVisitantesPdf();
         $html .= '<table class="tbl-vis"><thead><tr>';
         $html .= '<th width="5%">St</th><th width="4%">Sx</th><th width="6%">Pls</th><th width="18%">Nome</th>';
         $html .= '<th width="9%">Nasc.</th><th width="11%">Telefone</th><th width="4%">D</th><th width="7%">Fl</th>';
         $html .= '<th width="18%">Igreja</th><th width="10%">Bairro</th><th width="8%">Cidade</th>';
         $html .= '</tr></thead><tbody>';
+
+        return $html;
+    }
+
+    private static function montarHtmlPdf($dados)
+    {
+        $html = self::montarHtmlPdfResumo($dados);
+        $html .= self::htmlVisitantesCabecalho(count($dados['visitantes'] ?? []));
 
         foreach ($dados['visitantes'] as $v) {
             $html .= self::linhaVisitantePdf($v);
