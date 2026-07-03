@@ -112,6 +112,15 @@ class BdLogins extends DataBase
             parent::executeQuery("ALTER TABLE $table ADD foto LONGTEXT NULL AFTER lastName");
         }
 
+        parent::executeQuery("
+            UPDATE $table
+            SET fotoUrl = NULL
+            WHERE fotoUrl LIKE 'http://localhost%'
+               OR fotoUrl LIKE 'http://127.0.0.1%'
+               OR fotoUrl LIKE 'https://localhost%'
+               OR fotoUrl LIKE 'https://127.0.0.1%'
+        ");
+
         return true;
     }
 
@@ -406,7 +415,6 @@ class BdLogins extends DataBase
             'telefone' => '31993265491',
             'cpf'      => '10401141640',
             'senha'    => '123456',
-            'fotoUrl'  => 'http://localhost/desv/checkin/template/assets/midias/colaboradores/perfilmtbrust.jpg',
 
             // Observações do registro (obrigatório).
             'obs'           => 'Insert Automático.',

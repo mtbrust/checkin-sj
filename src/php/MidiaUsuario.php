@@ -32,25 +32,96 @@ class MidiaUsuario
 
     public static function urlDoUsuario($user)
     {
-        $caminho = '';
-
-        if (!empty($user['fotoUrl']) && strpos($user['fotoUrl'], 'data:') !== 0) {
-            $caminho = $user['fotoUrl'];
-        } elseif (!empty($user['foto'])) {
-            if (strpos($user['foto'], 'data:') === 0) {
-                return $user['foto'];
+        foreach (['fotoUrl', 'foto'] as $campo) {
+            if (empty($user[$campo])) {
+                continue;
             }
-            $caminho = $user['foto'];
+
+            if (strpos($user[$campo], 'data:') === 0) {
+                return $user[$campo];
+            }
+
+            $url = self::resolverUrlPublica($user[$campo]);
+            if ($url !== null) {
+                return $url;
+            }
         }
 
-        if ($caminho) {
-            if (strpos($caminho, 'http') === 0) {
-                return $caminho;
-            }
-            return BASE_URL . ltrim($caminho, '/');
+        $urlArquivo = self::urlPorArquivoLocal($user);
+        if ($urlArquivo !== null) {
+            return $urlArquivo;
         }
 
         return BASE_URL . 'src/midia/user.webp';
+    }
+
+    /**
+     * Converte caminho relativo ou URL absoluta legada para URL pública do ambiente atual.
+     */
+    public static function resolverUrlPublica($caminho)
+    {
+        $relativo = self::normalizarCaminhoRelativo($caminho);
+        if ($relativo === null) {
+            return null;
+        }
+
+        if (preg_match('#^https?://#i', $relativo)) {
+            return $relativo;
+        }
+
+        return BASE_URL . ltrim($relativo, '/');
+    }
+
+    private static function normalizarCaminhoRelativo($caminho)
+    {
+        $caminho = trim((string) $caminho);
+        if ($caminho === '' || strpos($caminho, 'data:') === 0) {
+            return $caminho;
+        }
+
+        if (preg_match('#^https?://#i', $caminho)) {
+            $path = parse_url($caminho, PHP_URL_PATH) ?: '';
+
+            if (preg_match('#/(src/midia/.+)$#i', $path, $m)) {
+                return $m[1];
+            }
+
+            if (preg_match('#^https?://(localhost|127\.0\.0\.1)#i', $caminho)) {
+                return null;
+            }
+
+            $hostAtual = parse_url(BASE_URL, PHP_URL_HOST);
+            $hostUrl = parse_url($caminho, PHP_URL_HOST);
+            if ($hostAtual && $hostUrl && strcasecmp($hostAtual, $hostUrl) === 0 && $path !== '') {
+                return ltrim($path, '/');
+            }
+
+            return $caminho;
+        }
+
+        return ltrim($caminho, '/');
+    }
+
+    private static function urlPorArquivoLocal($user)
+    {
+        $identificadores = [];
+
+        if (!empty($user['id'])) {
+            $identificadores[] = preg_replace('/\D/', '', (string) $user['id']);
+        }
+        if (!empty($user['cpf'])) {
+            $identificadores[] = preg_replace('/\D/', '', (string) $user['cpf']);
+        }
+
+        foreach (array_unique(array_filter($identificadores)) as $id) {
+            foreach (glob(self::dirPath() . $id . '.*') ?: [] as $file) {
+                if (is_file($file)) {
+                    return self::urlPublica(basename($file));
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -58,39 +129,34 @@ class MidiaUsuario
      */
     public static function caminhoAbsolutoDoUsuario($user)
     {
-        $resolver = function ($caminho) {
-            if (!$caminho) {
-                return '';
-            }
-            if (strpos($caminho, 'data:') === 0) {
-                return $caminho;
-            }
-            if (strpos($caminho, 'http://') === 0 || strpos($caminho, 'https://') === 0) {
-                if (defined('BASE_URL') && strpos($caminho, BASE_URL) === 0) {
-                    $rel = ltrim(substr($caminho, strlen(BASE_URL)), '/');
-                    $abs = BASE_DIR . str_replace('/', DIRECTORY_SEPARATOR, $rel);
-                    if (is_file($abs)) {
-                        return $abs;
-                    }
-                }
-                return $caminho;
-            }
-            $abs = BASE_DIR . ltrim(str_replace('/', DIRECTORY_SEPARATOR, $caminho), DIRECTORY_SEPARATOR);
-            return is_file($abs) ? $abs : '';
-        };
-
         foreach (['fotoUrl', 'foto'] as $campo) {
-            if (empty($user[$campo])) {
+            if (empty($user[$campo]) || strpos($user[$campo], 'data:') === 0) {
+                if (!empty($user[$campo]) && strpos($user[$campo], 'data:') === 0) {
+                    return $user[$campo];
+                }
                 continue;
             }
-            $resolved = $resolver($user[$campo]);
-            if ($resolved !== '') {
-                return $resolved;
+
+            $relativo = self::normalizarCaminhoRelativo($user[$campo]);
+            if ($relativo === null || preg_match('#^https?://#i', $relativo)) {
+                continue;
+            }
+
+            $abs = BASE_DIR . str_replace('/', DIRECTORY_SEPARATOR, ltrim($relativo, '/'));
+            if (is_file($abs)) {
+                return $abs;
             }
         }
 
-        $id = preg_replace('/\D/', '', (string) ($user['id'] ?? ''));
-        if ($id) {
+        $identificadores = [];
+        if (!empty($user['id'])) {
+            $identificadores[] = preg_replace('/\D/', '', (string) $user['id']);
+        }
+        if (!empty($user['cpf'])) {
+            $identificadores[] = preg_replace('/\D/', '', (string) $user['cpf']);
+        }
+
+        foreach (array_unique(array_filter($identificadores)) as $id) {
             foreach (glob(self::dirPath() . $id . '.*') ?: [] as $file) {
                 if (is_file($file)) {
                     return $file;
