@@ -65,7 +65,7 @@ if (!empty($_POST['f-fotoPerfil'])) {
     } else {
         $resultado = [
             'ret' => false,
-            'msg' => 'Não foi possível salvar a foto do visitante.',
+            'msg' => 'Não foi possível salvar a foto do visitante. Verifique permissão de escrita em src/midia/visitantes/.',
             'dados' => [],
             'post' => $post,
             'get' => $get,

@@ -11,6 +11,33 @@ class SiteConfig
         return dirname(__DIR__, 2) . '/';
     }
 
+    public static function garantirDirGravavel($dir)
+    {
+        $dir = rtrim(str_replace('\\', '/', $dir), '/') . '/';
+
+        if (!is_dir($dir)) {
+            if (!@mkdir($dir, 0775, true) && !is_dir($dir)) {
+                return false;
+            }
+        }
+
+        if (!is_writable($dir)) {
+            @chmod($dir, 0775);
+        }
+
+        if (!is_writable($dir)) {
+            $parent = dirname(rtrim($dir, '/'));
+            if ($parent && is_dir($parent) && !is_writable($parent)) {
+                @chmod($parent, 0775);
+            }
+            if (is_dir($dir)) {
+                @chmod($dir, 0775);
+            }
+        }
+
+        return is_dir($dir) && is_writable($dir) ? $dir : false;
+    }
+
     public static function settingsPath()
     {
         return self::projectDir() . self::SETTINGS_FILE;

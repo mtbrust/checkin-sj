@@ -11,13 +11,7 @@ class MidiaUsuario
 
     public static function ensureDir()
     {
-        $dir = self::dirPath();
-
-        if (!is_dir($dir) && !mkdir($dir, 0755, true) && !is_dir($dir)) {
-            return false;
-        }
-
-        return is_writable($dir) ? $dir : false;
+        return SiteConfig::garantirDirGravavel(self::dirPath()) ?: false;
     }
 
     public static function urlPublica($filename)

@@ -11,13 +11,7 @@ class MidiaVisitante
 
     public static function ensureDir()
     {
-        $dir = self::dirPath();
-
-        if (!is_dir($dir) && !mkdir($dir, 0755, true) && !is_dir($dir)) {
-            return false;
-        }
-
-        return is_writable($dir) ? $dir : false;
+        return SiteConfig::garantirDirGravavel(self::dirPath()) ?: false;
     }
 
     public static function urlPublica($filename)
@@ -36,13 +30,26 @@ class MidiaVisitante
             return '';
         }
 
-        $caminho = $visitante['foto'];
+        $caminho = trim((string) $visitante['foto']);
 
         if (strpos($caminho, 'data:') === 0) {
             return $caminho;
         }
 
-        if (strpos($caminho, 'http') === 0) {
+        if (preg_match('#^https?://(localhost|127\.0\.0\.1)#i', $caminho)) {
+            return '';
+        }
+
+        if (preg_match('#^https?://#i', $caminho)) {
+            $path = parse_url($caminho, PHP_URL_PATH) ?: '';
+            if (preg_match('#/(src/midia/.+)$#i', $path, $m)) {
+                return BASE_URL . $m[1];
+            }
+            $hostAtual = parse_url(BASE_URL, PHP_URL_HOST);
+            $hostUrl = parse_url($caminho, PHP_URL_HOST);
+            if ($hostAtual && $hostUrl && strcasecmp($hostAtual, $hostUrl) === 0 && $path !== '') {
+                return rtrim(BASE_URL, '/') . $path;
+            }
             return $caminho;
         }
 
@@ -59,6 +66,12 @@ class MidiaVisitante
 
         if (strpos($base64, 'base64,') !== false) {
             $partes = explode(',', $base64, 2);
+            if (preg_match('/^data:image\/(\w+);/', $partes[0], $matches)) {
+                $ext = strtolower($matches[1]);
+                if ($ext === 'jpeg') {
+                    $ext = 'jpg';
+                }
+            }
             $base64 = $partes[1];
         }
 
