@@ -618,17 +618,53 @@
             }
         }
 
-        function restaurarRascunho() {
+        function ofertarRecuperarRascunho() {
             if (CADASTRO_MODO_EDICAO) return;
+
+            let payload = null;
             try {
                 const raw = localStorage.getItem(CADASTRO_DRAFT_KEY);
                 if (!raw) return;
-                const payload = JSON.parse(raw);
-                preencherFormularioComPayload(payload);
-                statusSincronizacao('Rascunho recuperado do dispositivo.');
+                payload = JSON.parse(raw);
             } catch (e) {
-                // Ignora rascunho inválido.
+                localStorage.removeItem(CADASTRO_DRAFT_KEY);
+                return;
             }
+
+            if (!payload || (!payload['f-fullName'] && !payload['f-pulseira'] && !payload['f-telefone'])) {
+                localStorage.removeItem(CADASTRO_DRAFT_KEY);
+                return;
+            }
+
+            if ($('#cadastro-rascunho-banner').length) return;
+
+            const nome = payload['f-fullName'] || '(sem nome)';
+            const pulseira = payload['f-pulseira'] || '-';
+            const $banner = $(
+                '<div class="col-12 mb-3" id="cadastro-rascunho-banner">' +
+                    '<div class="alert alert-info py-2 mb-0 d-flex flex-wrap align-items-center justify-content-between gap-2">' +
+                        '<span class="small">Rascunho salvo: <strong></strong></span>' +
+                        '<span class="d-flex gap-2">' +
+                            '<button type="button" class="btn btn-sm btn-primary" id="cadastro-rascunho-recuperar">Recuperar</button>' +
+                            '<button type="button" class="btn btn-sm btn-outline-secondary" id="cadastro-rascunho-descartar">Descartar</button>' +
+                        '</span>' +
+                    '</div>' +
+                '</div>'
+            );
+            $banner.find('strong').text(nome + ' • pulseira ' + pulseira);
+            $('#form_visitante').prepend($banner);
+
+            $('#cadastro-rascunho-recuperar').on('click', function() {
+                preencherFormularioComPayload(payload);
+                $('#cadastro-rascunho-banner').remove();
+                statusSincronizacao('Rascunho recuperado do dispositivo.');
+            });
+
+            $('#cadastro-rascunho-descartar').on('click', function() {
+                limparRascunho();
+                $('#cadastro-rascunho-banner').remove();
+                statusSincronizacao('');
+            });
         }
 
         function limparRascunho() {
@@ -644,6 +680,7 @@
             if (typeof visitanteFotoLimpar === 'function') {
                 visitanteFotoLimpar();
             }
+            $('#cadastro-rascunho-banner').remove();
             $('#f-fullName').focus();
         }
 
@@ -759,7 +796,7 @@
         async function initOfflineCadastro() {
             if (CADASTRO_MODO_EDICAO) return;
 
-            restaurarRascunho();
+            ofertarRecuperarRascunho();
             await atualizarStatusFila();
             sincronizarFilaCadastro();
 
@@ -856,16 +893,8 @@
 
                     if (!teste) {
 
-                        $('#form_visitante').each(function() {
-                            this.reset();
-                        });
-
-                        $("#f-fotoPerfil").val('');
-                        if (typeof visitanteFotoLimpar === 'function') {
-                            visitanteFotoLimpar();
-                        }
-
-                        $('#f-fullName').focus();
+                        limparFormularioCadastro();
+                        limparRascunho();
                     }
 
 
