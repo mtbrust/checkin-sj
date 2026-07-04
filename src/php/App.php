@@ -29,6 +29,7 @@ class App
         require_once('src/php/MidiaVisitante.php');
         require_once('src/php/CargaTeste.php');
         require_once('src/php/RelatorioGeral.php');
+        require_once('src/php/Documentacao.php');
 
         // Segurança.
         require_once(BASE_DIR . 'src/php/Seguranca.php');

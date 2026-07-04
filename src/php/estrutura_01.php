@@ -8,7 +8,7 @@ $api = (isset($_GET["api"])?$_GET["api"]:"");
      
 // Trás conteúdo da api.
 if ($api) {
-    if ($api !== 'relatorio') {
+    if ($api !== 'relatorio' && $api !== 'documentacao') {
         header('Content-Type: application/json; charset=utf-8');
     }
     require_once(BASE_DIR . 'src/api/' . $api . '.php');

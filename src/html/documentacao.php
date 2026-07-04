@@ -10,9 +10,16 @@ $tituloAtual = Documentacao::titulo($docAtual);
 
 <div class="container my-4 doc-page">
     <div class="row mb-3">
-        <div class="col-12">
-            <h1 class="h3 mb-1">Documentação</h1>
-            <p class="text-muted small mb-0">Manual de funções e fluxos da Semana Jovem. Selecione um tópico ao lado (ou abaixo no celular).</p>
+        <div class="col-12 d-flex flex-wrap align-items-start justify-content-between gap-2">
+            <div>
+                <h1 class="h3 mb-1">Documentação</h1>
+                <p class="text-muted small mb-0">Manual de funções e fluxos da Semana Jovem. Selecione um tópico ao lado (ou abaixo no celular).</p>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="<?php echo htmlspecialchars(Documentacao::urlPdf(), ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-sm btn-outline-danger">
+                    <i class="fas fa-file-pdf"></i> Baixar PDF
+                </a>
+            </div>
         </div>
     </div>
 
