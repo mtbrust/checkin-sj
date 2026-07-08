@@ -8,7 +8,7 @@ if (isset($_GET['f-pesquisa']) && $_GET['f-pesquisa'] != '') {
 }
 
 $user = Seguranca::getSession();
-$podeEditar = isset($user['cpf']) && in_array($user['cpf'], Seguranca::getCpfsAdmins());
+$podeEditar = Seguranca::isAdmin($user);
 
 $statusLabels = [
     2 => ['label' => 'Atualizar', 'class' => 'text-bg-warning'],

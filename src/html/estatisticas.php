@@ -1,7 +1,5 @@
 <?php
 
-Seguranca::checkAdmin();
-
 $baseApi = BASE_URL . '?api=estatistica';
 $baseUrl = BASE_URL;
 

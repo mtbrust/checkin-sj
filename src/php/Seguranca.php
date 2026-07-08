@@ -2,34 +2,54 @@
 
 class Seguranca
 {
+    const ADMIN_USER_ID = 1;
 
     public static function init()
     {
         session_start();
     }
 
+    public static function isAdmin($user = null)
+    {
+        if ($user === null) {
+            $user = $_SESSION['usuario'] ?? null;
+        }
+
+        return is_array($user) && (int) ($user['id'] ?? 0) === self::ADMIN_USER_ID;
+    }
+
     public static function check()
     {
-        if (!$_SESSION['usuario']) {
-            // Redireciona para a página inicial.
+        if (empty($_SESSION['usuario'])) {
             header('Location: ' . BASE_URL . '?page=home');
+            exit;
         }
     }
 
     public static function checkAdmin()
     {
-        // Verifica se está logado.
         self::check();
 
-        $adm = false;
+        if (!self::isAdmin()) {
+            header('Location: ' . BASE_URL . '?page=home');
+            exit;
+        }
+    }
 
-        if (in_array($_SESSION['usuario']['cpf'], self::getCpfsAdmins())) {
-            $adm = true;
+    public static function checkAdminApi()
+    {
+        if (empty($_SESSION['usuario'])) {
+            header('Content-Type: application/json; charset=utf-8');
+            http_response_code(401);
+            echo json_encode(['ret' => false, 'msg' => 'Não autenticado.']);
+            exit;
         }
 
-        if (!$adm) {
-            // Redireciona para a página inicial.
-            header('Location: ' . BASE_URL . '?page=home');
+        if (!self::isAdmin()) {
+            header('Content-Type: application/json; charset=utf-8');
+            http_response_code(403);
+            echo json_encode(['ret' => false, 'msg' => 'Acesso negado.']);
+            exit;
         }
     }
 
@@ -37,20 +57,20 @@ class Seguranca
     {
         if (isset($_SESSION['usuario'])) {
             return $_SESSION['usuario'];
-        } else {
-            return [
-                'fullName' => 'NÃO LOGADO',
-                'id' => 0,
-            ];
         }
+
+        return [
+            'fullName' => 'NÃO LOGADO',
+            'id' => 0,
+        ];
     }
 
     public static function clearSession()
     {
         $_SESSION['usuario'] = null;
         session_destroy();
-        // Redireciona para a página inicial.
         header('Location: ' . BASE_URL . '?page=home');
+        exit;
     }
 
     public static function setSession($user)
@@ -58,6 +78,9 @@ class Seguranca
         return $_SESSION['usuario'] = $user;
     }
 
+    /**
+     * @deprecated Use isAdmin() — admin é somente o usuário id 1.
+     */
     public static function getCpfsAdmins()
     {
         return ['10401141640'];

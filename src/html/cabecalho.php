@@ -1,13 +1,10 @@
 <?php
 
 $user = Seguranca::getSession();
-$cpfs = Seguranca::getCpfsAdmins();
+$isAdmin = Seguranca::isAdmin($user);
 $logado = (int) $user['id'] > 0;
 
-$show = 'd-none';
-if ($logado && (!isset($user['cpf']) || in_array($user['cpf'], $cpfs))) {
-    $show = '';
-}
+$show = $isAdmin ? '' : 'd-none';
 
 $userFoto = $logado ? MidiaUsuario::urlDoUsuario($user) : '';
 

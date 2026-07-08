@@ -1,5 +1,7 @@
 <?php
 
+Seguranca::checkAdminApi();
+
 // Mensagens padrão de retorno.
 $ret = '';
 $msg = 'Sem resposta.';

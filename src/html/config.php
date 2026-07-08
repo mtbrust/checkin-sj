@@ -1,7 +1,5 @@
 <?php
 
-Seguranca::checkAdmin();
-
 $user = Seguranca::getSession();
 $mostrarManutencao = (int) $user['id'] === 1;
 $httpsModo = SiteConfig::getForceHttps();

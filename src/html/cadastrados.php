@@ -3,7 +3,7 @@
 Seguranca::check();
 
 $user = Seguranca::getSession();
-$podeEditar = isset($user['cpf']) && in_array($user['cpf'], Seguranca::getCpfsAdmins());
+$podeEditar = Seguranca::isAdmin($user);
 
 $filtros = [
     'nome'        => isset($_GET['f-nome']) ? trim($_GET['f-nome']) : '',

@@ -15,6 +15,11 @@ if ($api) {
     exit;
 }
 
+$paginasAdmin = ['estatisticas', 'config', 'checkin-andamento'];
+if (in_array($page, $paginasAdmin, true)) {
+    Seguranca::checkAdmin();
+}
+
 // Título da página html.
 $page_name = BASE_NAME . ' - ' . $page;
 
