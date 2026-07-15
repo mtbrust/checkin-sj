@@ -63,9 +63,12 @@ if (!empty($_POST['f-fotoPerfil'])) {
     if ($fotoPath) {
         $fields['foto'] = $fotoPath;
     } else {
+        $detalhe = MidiaVisitante::ultimoErro();
         $resultado = [
             'ret' => false,
-            'msg' => 'Não foi possível salvar a foto do visitante. Verifique permissão de escrita em src/midia/visitantes/.',
+            'msg' => $detalhe !== ''
+                ? $detalhe
+                : 'Não foi possível salvar a foto do visitante. Rode: sudo bash scripts/after-pull.sh',
             'dados' => [],
             'post' => $post,
             'get' => $get,

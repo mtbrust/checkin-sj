@@ -247,7 +247,7 @@
         }
 
         if (preview) {
-            preview.src = '';
+            preview.removeAttribute('src');
             preview.classList.add('d-none');
         }
 

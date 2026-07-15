@@ -4,6 +4,13 @@ class MidiaVisitante
 {
     const DIR = 'src/midia/visitantes/';
 
+    private static $ultimoErro = '';
+
+    public static function ultimoErro()
+    {
+        return self::$ultimoErro;
+    }
+
     public static function dirPath()
     {
         return BASE_DIR . self::DIR;
@@ -11,7 +18,22 @@ class MidiaVisitante
 
     public static function ensureDir()
     {
-        return SiteConfig::garantirDirGravavel(self::dirPath()) ?: false;
+        self::$ultimoErro = '';
+        $dir = SiteConfig::garantirDirGravavel(self::dirPath());
+
+        if ($dir) {
+            return $dir;
+        }
+
+        $path = self::dirPath();
+        $existe = is_dir($path);
+        $gravavel = $existe && is_writable($path);
+        self::$ultimoErro = 'Pasta não gravável: ' . $path
+            . ' (existe=' . ($existe ? 'sim' : 'não')
+            . ', writable=' . ($gravavel ? 'sim' : 'não')
+            . '). Rode no servidor: sudo bash scripts/after-pull.sh';
+
+        return false;
     }
 
     public static function urlPublica($filename)
@@ -53,12 +75,21 @@ class MidiaVisitante
             return $caminho;
         }
 
-        return BASE_URL . ltrim($caminho, '/');
+        $rel = ltrim($caminho, '/');
+        $abs = BASE_DIR . str_replace('/', DIRECTORY_SEPARATOR, $rel);
+        if (!is_file($abs)) {
+            return '';
+        }
+
+        return BASE_URL . $rel;
     }
 
     public static function salvarDeBase64($base64, $identificador)
     {
+        self::$ultimoErro = '';
+
         if (!is_string($base64) || trim($base64) === '') {
+            self::$ultimoErro = 'Foto vazia.';
             return false;
         }
 
@@ -78,6 +109,7 @@ class MidiaVisitante
         $data = base64_decode($base64, true);
 
         if ($data === false || $data === '') {
+            self::$ultimoErro = 'Base64 da foto inválido.';
             return false;
         }
 
@@ -97,7 +129,16 @@ class MidiaVisitante
         $filename = $id . '.' . $ext;
         $path = $dir . $filename;
 
-        if (file_put_contents($path, $data) === false) {
+        $ok = @file_put_contents($path, $data);
+        if ($ok === false) {
+            self::$ultimoErro = 'Falha ao gravar arquivo: ' . $path;
+            return false;
+        }
+
+        @chmod($path, 0664);
+
+        if (!is_file($path) || filesize($path) < 1) {
+            self::$ultimoErro = 'Arquivo não ficou disponível após gravar: ' . $path;
             return false;
         }
 

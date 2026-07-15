@@ -223,7 +223,7 @@
             }
             ?>
             <img
-                src="<?php echo htmlspecialchars($fotoVisitanteUrl, ENT_QUOTES, 'UTF-8'); ?>"
+                <?php if ($fotoVisitanteUrl): ?>src="<?php echo htmlspecialchars($fotoVisitanteUrl, ENT_QUOTES, 'UTF-8'); ?>"<?php endif; ?>
                 alt="Foto do visitante"
                 id="visitante-foto-preview"
                 title="Clique para ampliar"
@@ -331,7 +331,7 @@
 
 
 
-    <script src="src/js/visitante-foto.js"></script>
+    <script src="<?php echo BASE_URL; ?>src/js/visitante-foto.js"></script>
 
     <script>
         let pulseira_teste = 5000;
