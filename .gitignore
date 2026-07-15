@@ -4,6 +4,9 @@ config.php
 !/src/midia/users/.gitkeep
 /src/midia/visitantes/*
 !/src/midia/visitantes/.gitkeep
+/data/tmp/*
+!/data/tmp/.gitkeep
+!/data/tmp/mpdf/
 /data/tmp/mpdf/*
 !/data/tmp/mpdf/.gitkeep
 .user.ini
