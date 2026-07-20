@@ -174,7 +174,7 @@ $totalResultados = is_array($resultado) ? count($resultado) : 0;
                 $nascimentoInfo = pesquisaNascimentoInfo($value['nascimento'] ?? '');
                 $sexo = strtoupper(trim((string) ($value['sexo'] ?? '')));
                 ?>
-                <div class="col-6 pesquisa-item"
+                <div class="col-6 col-md-4 col-lg-3 pesquisa-item"
                     data-nome="<?php echo htmlspecialchars(mb_strtolower((string) ($value['fullName'] ?? ''), 'UTF-8'), ENT_QUOTES, 'UTF-8'); ?>"
                     data-sexo="<?php echo htmlspecialchars($sexo, ENT_QUOTES, 'UTF-8'); ?>"
                     data-telefone="<?php echo htmlspecialchars($telefoneDigits, ENT_QUOTES, 'UTF-8'); ?>"
