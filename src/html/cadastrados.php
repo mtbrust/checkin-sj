@@ -28,6 +28,11 @@ $porPagina = isset($_GET['qtd']) ? max(10, min(100, (int) $_GET['qtd'])) : 25;
 $BdVisitantes = new BdVisitantes();
 $total = $BdVisitantes->contarFiltrado($filtros);
 $lista = $BdVisitantes->listarFiltrado($filtros, $pagina, $porPagina);
+
+function cadastradosH($valor)
+{
+    return htmlspecialchars((string) ($valor ?? ''), ENT_QUOTES, 'UTF-8');
+}
 $totalPaginas = $total > 0 ? (int) ceil($total / $porPagina) : 1;
 
 $statusLabels = [
@@ -224,14 +229,14 @@ $queryBase = cadastradosQueryBase($filtros, $porPagina);
                                 $rowClass = (int) $row['status'] === 4 ? 'table-danger' : '';
                                 ?>
                                 <tr class="<?php echo $rowClass; ?>">
-                                    <td><?php echo htmlspecialchars($row['pulseira'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                    <td><?php echo htmlspecialchars($row['tpulseira'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                    <td class="text-truncate" style="max-width: 180px;"><?php echo htmlspecialchars($row['fullName'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                    <td class="d-none d-md-table-cell"><?php echo htmlspecialchars($row['telefone'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                    <td class="d-none d-lg-table-cell"><?php echo htmlspecialchars($row['cidade'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                    <td class="d-none d-lg-table-cell"><?php echo htmlspecialchars($row['bairro'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                    <td class="d-none d-md-table-cell"><?php echo htmlspecialchars($row['sexo'], ENT_QUOTES, 'UTF-8'); ?></td>
-                                    <td class="d-none d-xl-table-cell"><small><?php echo htmlspecialchars($row['dtCreate'], ENT_QUOTES, 'UTF-8'); ?></small></td>
+                                    <td><?php echo cadastradosH($row['pulseira'] ?? ''); ?></td>
+                                    <td><?php echo cadastradosH($row['tpulseira'] ?? ''); ?></td>
+                                    <td class="text-truncate" style="max-width: 180px;"><?php echo cadastradosH($row['fullName'] ?? ''); ?></td>
+                                    <td class="d-none d-md-table-cell"><?php echo cadastradosH($row['telefone'] ?? ''); ?></td>
+                                    <td class="d-none d-lg-table-cell"><?php echo cadastradosH($row['cidade'] ?? ''); ?></td>
+                                    <td class="d-none d-lg-table-cell"><?php echo cadastradosH($row['bairro'] ?? ''); ?></td>
+                                    <td class="d-none d-md-table-cell"><?php echo cadastradosH($row['sexo'] ?? ''); ?></td>
+                                    <td class="d-none d-xl-table-cell"><small><?php echo cadastradosH($row['dtCreate'] ?? ''); ?></small></td>
                                     <td><?php echo $status; ?></td>
                                     <td class="text-nowrap">
                                         <a href="#" class="js-visitante-foto text-muted me-2" data-visitante-id="<?php echo (int) $row['id']; ?>" title="Ver foto">
