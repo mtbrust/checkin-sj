@@ -388,6 +388,7 @@ class BdVisitantes extends DataBase
     public function pesquisar($termo)
     {
         $table = parent::fullTableName();
+        $tablePresencas = parent::fullTableName('presencas');
         $termo = trim((string) $termo);
 
         if ($termo === '') {
@@ -400,32 +401,26 @@ class BdVisitantes extends DataBase
 
         if ($ehNumero) {
             $digitos = addslashes($digitos);
-
-            // Número: pulseira, pulseira antiga ou parte do telefone (+ presenças)
-            $select = "GROUP_CONCAT(DATE(p.dtCreate) SEPARATOR ',') as presencas, vi.*";
             $where = "(
                 vi.telefone LIKE '%$digitos%'
                 OR REPLACE(REPLACE(REPLACE(REPLACE(IFNULL(vi.telefone,''), '(', ''), ')', ''), '-', ''), ' ', '') LIKE '%$digitos%'
                 OR vi.pulseira = '$digitos'
                 OR vi.oldPulseira = '$digitos'
             )";
-            $inner = "LEFT JOIN sj_presencas p ON vi.pulseira = p.pulseira AND UPPER(vi.tpulseira) = UPPER(p.tpulseira)";
-            $group = "GROUP BY vi.id";
-            $order = "ORDER BY vi.fullName ASC";
         } else {
             $termoEsc = addslashes($termo);
-
-            // Texto: nome, tipo de pulseira ou endereço
-            $select = "'texto' as presencas, vi.*";
             $where = "(
                 vi.fullName LIKE '%$termoEsc%'
                 OR vi.tpulseira LIKE '%$termoEsc%'
                 OR vi.endereco LIKE '%$termoEsc%'
             )";
-            $inner = '';
-            $group = '';
-            $order = "ORDER BY vi.fullName ASC";
         }
+
+        // Dias únicos de presença (ignora duplicatas no mesmo dia)
+        $select = "COUNT(DISTINCT DATE(p.dtCreate)) AS qtd_dias_presenca, vi.*";
+        $inner = "LEFT JOIN $tablePresencas p ON vi.pulseira = p.pulseira AND UPPER(vi.tpulseira) = UPPER(p.tpulseira)";
+        $group = "GROUP BY vi.id";
+        $order = "ORDER BY vi.fullName ASC";
 
         $sql = "SELECT $select FROM $table vi $inner WHERE $where $group $order;";
         $r = parent::executeQuery($sql);

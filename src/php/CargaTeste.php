@@ -189,6 +189,29 @@ class CargaTeste
                 'status' => 1,
             ], $extra));
         }
+
+        // Visitantes com 4, 5 e 6 dias únicos de presença (para badge da pesquisa).
+        $presencaDias = [
+            ['pulseira' => 8104, 'tpulseira' => 'AMARELA', 'dias' => 4, 'fullName' => 'PRESENCA 4 DIAS TESTE', 'sexo' => 'M'],
+            ['pulseira' => 8105, 'tpulseira' => 'AZUL', 'dias' => 5, 'fullName' => 'PRESENCA 5 DIAS TESTE', 'sexo' => 'F'],
+            ['pulseira' => 8106, 'tpulseira' => 'AMARELA', 'dias' => 6, 'fullName' => 'PRESENCA 6 DIAS TESTE', 'sexo' => 'M'],
+        ];
+
+        foreach ($presencaDias as $item) {
+            $this->inserirVisitante([
+                'pulseira' => $item['pulseira'],
+                'tpulseira' => $item['tpulseira'],
+                'fullName' => $item['fullName'],
+                'name' => 'PRESENCA',
+                'sexo' => $item['sexo'],
+                'telefone' => '35997081' . $item['dias'] . '0' . $item['dias'],
+                'cidade' => 'CIDADE TESTE',
+                'bairro' => 'BAIRRO DIAS',
+                'endereco' => 'RUA ' . $item['dias'] . ' DIAS',
+                'nascimento' => '2001-07-20',
+                'status' => 1,
+            ]);
+        }
     }
 
     private function criarPresencas()
@@ -208,11 +231,26 @@ class CargaTeste
             $this->inserirPresenca($pulseira, $cor, $diaDuplicada, $idx + 1);
         }
 
-        // Completar 15+ presenças distribuídas nos últimos 7 dias.
+        // Completar presenças distribuídas nos últimos dias.
         $pulseiras = [8005, 8006, 8007, 8008, 8009, 8010, 8012, 8013, 8016];
         foreach ($pulseiras as $idx => $pulseira) {
             $cor = $pulseira % 2 === 0 ? 'AZUL' : 'AMARELA';
             $this->inserirPresenca($pulseira, $cor, $this->dataNoDia($idx % 8), $idx);
+        }
+
+        // 4, 5 e 6 dias únicos (com 1 duplicata no último dia para validar DISTINCT).
+        $casosDias = [
+            ['pulseira' => 8104, 'tpulseira' => 'AMARELA', 'dias' => 4],
+            ['pulseira' => 8105, 'tpulseira' => 'AZUL', 'dias' => 5],
+            ['pulseira' => 8106, 'tpulseira' => 'AMARELA', 'dias' => 6],
+        ];
+
+        foreach ($casosDias as $caso) {
+            for ($d = 0; $d < $caso['dias']; $d++) {
+                $this->inserirPresenca($caso['pulseira'], $caso['tpulseira'], $this->dataNoDia($d), $d);
+            }
+            // Duplicata no dia mais recente — não deve aumentar o contador de dias.
+            $this->inserirPresenca($caso['pulseira'], $caso['tpulseira'], $this->dataNoDia(0), 99);
         }
 
         // 1 presença sem cadastro (pulseira inexistente).

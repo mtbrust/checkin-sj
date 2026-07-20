@@ -157,17 +157,7 @@ $totalResultados = is_array($resultado) ? count($resultado) : 0;
                 <?php
                 $statusInfo = $statusLabels[$value['status']] ?? null;
                 $cardClass = (int) $value['status'] === 4 ? 'pesquisa-card-bloqueado' : '';
-
-                $presencasHtml = '';
-                if (($value['presencas'] ?? '') == 'texto') {
-                    $presencasHtml = '';
-                } else {
-                    $presencas = array_filter(array_unique(explode(',', (string) ($value['presencas'] ?? ''))));
-                    sort($presencas);
-                    if ($presencas) {
-                        $presencasHtml = '<div class="pesquisa-card-presencas"><i class="fas fa-user-check"></i> ' . count($presencas) . ' presença(s)</div>';
-                    }
-                }
+                $qtdDias = (int) ($value['qtd_dias_presenca'] ?? 0);
 
                 $telefoneFmt = pesquisaTelefoneFormatado($value['telefone'] ?? '');
                 $telefoneDigits = preg_replace('/\D+/', '', (string) ($value['telefone'] ?? ''));
@@ -194,11 +184,21 @@ $totalResultados = is_array($resultado) ? count($resultado) : 0;
                                     </a>
                                 <?php endif; ?>
                                 <span class="badge <?php echo pesquisaBadgePulseira($value['tpulseira']); ?>">
-                                    <?php echo htmlspecialchars($value['pulseira'], ENT_QUOTES, 'UTF-8'); ?>
+                                    <?php echo htmlspecialchars((string) ($value['pulseira'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>
                                 </span>
                             </div>
                             <div class="pesquisa-card-sexo">
                                 <?php echo pesquisaIconeSexo($value['sexo'] ?? ''); ?>
+                                <?php if ($qtdDias > 5): ?>
+                                    <span class="badge text-bg-success pesquisa-badge-dias" title="Mais de 6 dias de presença">
+                                        <?php echo $qtdDias; ?>d
+                                        <i class="fas fa-star pesquisa-estrela"></i>
+                                    </span>
+                                <?php else: ?>
+                                    <span class="badge text-bg-secondary pesquisa-badge-dias" title="Dias com presença (sem duplicar o mesmo dia)">
+                                        <?php echo $qtdDias; ?>d
+                                    </span>
+                                <?php endif; ?>
                             </div>
                         </div>
 
@@ -208,8 +208,8 @@ $totalResultados = is_array($resultado) ? count($resultado) : 0;
                         </div>
                         <?php endif; ?>
 
-                        <div class="pesquisa-card-nome text-truncate fw-bold" title="<?php echo htmlspecialchars($value['fullName'], ENT_QUOTES, 'UTF-8'); ?>">
-                            <?php echo htmlspecialchars($value['fullName'], ENT_QUOTES, 'UTF-8'); ?>
+                        <div class="pesquisa-card-nome text-truncate fw-bold" title="<?php echo htmlspecialchars((string) ($value['fullName'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+                            <?php echo htmlspecialchars((string) ($value['fullName'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>
                         </div>
 
                         <div class="pesquisa-card-info">
@@ -223,11 +223,9 @@ $totalResultados = is_array($resultado) ? count($resultado) : 0;
                                 <div class="text-truncate"><?php echo htmlspecialchars($telefoneFmt, ENT_QUOTES, 'UTF-8'); ?></div>
                             <?php endif; ?>
                             <?php if (!empty($value['cidade'])): ?>
-                                <div class="text-truncate text-muted"><?php echo htmlspecialchars($value['cidade'], ENT_QUOTES, 'UTF-8'); ?></div>
+                                <div class="text-truncate text-muted"><?php echo htmlspecialchars((string) $value['cidade'], ENT_QUOTES, 'UTF-8'); ?></div>
                             <?php endif; ?>
                         </div>
-
-                        <?php echo $presencasHtml; ?>
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -284,6 +282,22 @@ $totalResultados = is_array($resultado) ? count($resultado) : 0;
         flex-shrink: 0;
         font-size: 0.85rem;
         line-height: 1;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .pesquisa-badge-dias {
+        font-size: 0.65rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    .pesquisa-estrela {
+        color: #ffc107;
+        font-size: 0.62rem;
     }
 
     .pesquisa-sexo-m {
@@ -323,12 +337,6 @@ $totalResultados = is_array($resultado) ? count($resultado) : 0;
     .pesquisa-card-info {
         font-size: 0.72rem;
         line-height: 1.35;
-    }
-
-    .pesquisa-card-presencas {
-        margin-top: 6px;
-        font-size: 0.68rem;
-        color: #198754;
     }
 </style>
 
