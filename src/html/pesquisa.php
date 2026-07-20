@@ -50,10 +50,9 @@ function pesquisaTelefoneFormatado($telefone, $dddPadrao = '35')
 
     if (strlen($digits) === 11) {
         return sprintf(
-            '(%s) %s %s-%s',
+            '(%s) %s-%s',
             substr($digits, 0, 2),
-            substr($digits, 2, 1),
-            substr($digits, 3, 4),
+            substr($digits, 2, 5),
             substr($digits, 7, 4)
         );
     }

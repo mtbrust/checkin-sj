@@ -16,8 +16,8 @@
     <div class="col-sm-6">
         <div class="mb-3">
             <label for="f-telefone" class="form-label">Telefone</label>
-            <input type="text" class="form-control phone" id="f-telefone" name="f-telefone" placeholder="(00) 00000-0000">
-            <div class="form-text">Obrigatório apenas para novo cadastro.</div>
+            <input type="text" class="form-control phone" id="f-telefone" name="f-telefone" placeholder="(00) 00000-0000" inputmode="numeric" maxlength="15">
+            <div class="form-text">DDD + 9 dígitos (11 no total). Obrigatório apenas para novo cadastro.</div>
         </div>
     </div>
     <div class="col-sm-6">

@@ -26,8 +26,8 @@
     </div>
     <div class="col-12 col-sm-6 mb-3">
         <label for="f-telefone" class="form-label">Telefone</label>
-        <input type="text" class="form-control phone" id="f-telefone" name="f-telefone" placeholder="(00) 00000-0000" value="<?php echo isset($visitante['telefone']) ? $visitante['telefone'] : ''; ?>">
-        <div class="form-text">DDD + 9 + número.</div>
+        <input type="text" class="form-control phone" id="f-telefone" name="f-telefone" placeholder="(00) 00000-0000" inputmode="numeric" maxlength="15" value="<?php echo isset($visitante['telefone']) ? htmlspecialchars($visitante['telefone'], ENT_QUOTES, 'UTF-8') : ''; ?>">
+        <div class="form-text">DDD + 9 dígitos (11 no total). Ex.: (35) 99709-1234</div>
     </div>
 
     <div class="col-6 col-sm-3 mb-3 d-none">

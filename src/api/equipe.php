@@ -17,7 +17,7 @@ if ($_POST) {
     }
 
     if (isset($_POST['f-telefone'])) {
-        $telefone = $_POST['f-telefone'] = str_replace(['.', '-', '(', ')', ' '], '', $_POST['f-telefone']);
+        $telefone = $_POST['f-telefone'] = preg_replace('/\D+/', '', (string) $_POST['f-telefone']);
     }
 
     if (isset($_POST['f-fullName'])) {
