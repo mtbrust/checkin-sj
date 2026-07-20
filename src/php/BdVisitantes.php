@@ -387,37 +387,53 @@ class BdVisitantes extends DataBase
 
     public function pesquisar($termo)
     {
-        // Ajusta nome real da tabela.
         $table = parent::fullTableName();
+        $termo = trim((string) $termo);
 
-        // Caso o termo seja texto.
-        $select = "'texto' as presencas, vi.*";
-        $where = "vi.fullName like '%$termo%' OR vi.tpulseira = '$termo' OR vi.endereco like '%$termo%'";
-        $inner = '';
-        $group = '';
-        $order = '';
-
-        // Caso o termo seja número.
-        if (is_numeric($termo)){
-            $where = "vi.telefone = '$termo' OR vi.pulseira = '$termo' OR vi.oldPulseira = '$termo'";
-
-            $select = "GROUP_CONCAT(DATE(p.dtCreate) SEPARATOR ',') as presencas, vi.*";
-            $inner = "left join sj_presencas p on vi.pulseira = p.pulseira and UPPER(vi.tpulseira) = UPPER(p.tpulseira)";
-            $group = "GROUP by vi.pulseira, vi.tpulseira";
-            $order = "ORDER by p.dtcreate";
+        if ($termo === '') {
+            return false;
         }
 
-        // Monta SQL.
-        $sql = "SELECT $select FROM $table vi $inner WHERE $where $group $order;";
+        $digitos = preg_replace('/\D+/', '', $termo);
+        $termoSemFmt = preg_replace('/[\s().\-]+/', '', $termo);
+        $ehNumero = ($digitos !== '' && $termoSemFmt === $digitos);
 
-        // Executa o select
+        if ($ehNumero) {
+            $digitos = addslashes($digitos);
+
+            // Número: pulseira, pulseira antiga ou parte do telefone (+ presenças)
+            $select = "GROUP_CONCAT(DATE(p.dtCreate) SEPARATOR ',') as presencas, vi.*";
+            $where = "(
+                vi.telefone LIKE '%$digitos%'
+                OR REPLACE(REPLACE(REPLACE(REPLACE(IFNULL(vi.telefone,''), '(', ''), ')', ''), '-', ''), ' ', '') LIKE '%$digitos%'
+                OR vi.pulseira = '$digitos'
+                OR vi.oldPulseira = '$digitos'
+            )";
+            $inner = "LEFT JOIN sj_presencas p ON vi.pulseira = p.pulseira AND UPPER(vi.tpulseira) = UPPER(p.tpulseira)";
+            $group = "GROUP BY vi.id";
+            $order = "ORDER BY vi.fullName ASC";
+        } else {
+            $termoEsc = addslashes($termo);
+
+            // Texto: nome, tipo de pulseira ou endereço
+            $select = "'texto' as presencas, vi.*";
+            $where = "(
+                vi.fullName LIKE '%$termoEsc%'
+                OR vi.tpulseira LIKE '%$termoEsc%'
+                OR vi.endereco LIKE '%$termoEsc%'
+            )";
+            $inner = '';
+            $group = '';
+            $order = "ORDER BY vi.fullName ASC";
+        }
+
+        $sql = "SELECT $select FROM $table vi $inner WHERE $where $group $order;";
         $r = parent::executeQuery($sql);
 
-        // Verifica se não teve retorno.
-        if (!$r)
+        if (!$r) {
             return false;
+        }
 
-        // Retorna primeira linha.
         return $r;
     }
 
